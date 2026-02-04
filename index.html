@@ -26,42 +26,136 @@
         .table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Sticky Columns Logic */
-        /* 1st column (Name) */
         .sticky-left-1 { position: sticky; left: 0; z-index: 30; background-color: #fff; }
-        /* 2nd column (ID) - calculated offset based on Name width approx 200px */
         .sticky-left-2 { position: sticky; left: 200px; z-index: 30; background-color: #fff; border-right: 2px solid #e2e8f0; }
         
-        /* Header Sticky */
         thead tr th { position: sticky; top: 0; z-index: 40; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         thead tr th.sticky-left-1 { z-index: 50; } 
         thead tr th.sticky-left-2 { z-index: 50; }
 
-        /* Print Styles */
-        @media print {
-            body * { visibility: hidden; }
-            #modalContainer, #modalContainer * { visibility: visible; }
-            #modalContainer { 
-                position: absolute; 
-                left: 0; top: 0; 
-                width: 100%; 
-                margin: 0; padding: 0; 
-                background: white; 
-                height: auto; 
-                z-index: 9999;
-            }
-            .no-print { display: none !important; }
-            .print-break { page-break-before: always; }
-            ::-webkit-scrollbar { display: none; }
-        }
-
         /* Animations */
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Mode selector styles */
+        .mode-btn { transition: all 0.3s ease; }
+        .mode-btn.active { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        /* =========================================
+           PRINT STYLES - PRESERVE EXACT APPEARANCE
+           ========================================= */
+        @media print {
+            @page { margin: 0.5cm; size: auto; }
+            
+            /* 1. Reset Page Dimensions */
+            html, body {
+                height: auto !important;
+                min-height: 100% !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* 2. Hide Everything Except Modal */
+            body > *:not(#modalContainer) {
+                display: none !important;
+            }
+
+            /* 3. Force Modal to Flow Naturally */
+            #modalContainer {
+                display: block !important;
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                background: white !important;
+                z-index: 9999;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* 4. Unlock Inner Containers */
+            #modalContainer .overflow-y-auto, 
+            #modalContainer .max-h-\[95vh\] {
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
+                display: block !important;
+            }
+
+            /* 5. Force Visibility */
+            #modalContainer * {
+                visibility: visible !important;
+            }
+
+            /* 6. PRESERVE ALL COLORS & STYLING - Don't override backgrounds! */
+            /* Only remove excessive shadows for cleaner print */
+            .shadow-2xl { 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; 
+            }
+            
+            /* 7. Hide UI Elements */
+            .no-print, button:not(.print-keep), .close-btn, header { display: none !important; }
+
+            /* 8. Show Charts */
+            canvas {
+                max-width: 100% !important;
+                max-height: 250px !important;
+                display: block !important;
+            }
+
+            /* 9. Prevent Awkward Breaks */
+            tr { page-break-inside: avoid; }
+            h1, h2, h3, h4, h5 { page-break-after: avoid; }
+            .break-inside-avoid { page-break-inside: avoid; }
+            
+            /* Keep grid layouts together */
+            .grid { page-break-inside: avoid; }
+            
+            /* 10. Make inputs visible with their values */
+            input, textarea {
+                border: 1px solid #e2e8f0 !important;
+                background: white !important;
+                padding: 0.5rem !important;
+                font-size: 0.75rem !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 11. Force Color Printing */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* 12. Hide the separate print header, keep inline design */
+            .hidden.print\\:block {
+                display: none !important;
+            }
+
+            /* 13. Ensure modal content has proper padding */
+            #modalContainer > div > div:last-child {
+                padding: 2rem !important;
+            }
+
+            /* 14. Keep signature section at bottom */
+            .invisible.print\\:visible {
+                visibility: visible !important;
+                margin-top: 3rem !important;
+                page-break-before: avoid !important;
+            }
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-[60]">
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-[60] no-print">
         <div class="max-w-full mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="bg-blue-600 p-2 rounded-lg text-white shadow-lg shadow-blue-500/50">
@@ -78,7 +172,7 @@
         </div>
     </header>
 
-    <main class="flex-grow p-6">
+    <main class="flex-grow p-6 no-print">
         
         <div id="errorBox" class="hidden max-w-4xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm flex justify-between items-center fade-in">
             <div>
@@ -88,24 +182,64 @@
             <button onclick="document.getElementById('errorBox').classList.add('hidden')" class="text-red-700 font-bold hover:text-red-900">&times;</button>
         </div>
 
-        <div id="step-upload" class="max-w-3xl mx-auto bg-white rounded-xl shadow-xl p-12 text-center border border-slate-200 mt-10 fade-in relative overflow-hidden">
+        <!-- Mode Selection Screen -->
+        <div id="step-mode-select" class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-12 text-center border border-slate-200 mt-10 fade-in relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+            
+            <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <i class="fas fa-graduation-cap text-blue-600 text-4xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-3">Select Grading Mode</h2>
+            <p class="text-slate-500 mb-10 text-lg">Choose the appropriate grading system for your students.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <button onclick="selectMode('college')" class="mode-btn group bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-300 rounded-xl p-8 transition-all transform hover:-translate-y-1">
+                    <div class="text-blue-600 text-5xl mb-4"><i class="fas fa-university"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">College Mode</h3>
+                    <p class="text-sm text-slate-600 mb-4">4 Terms: Prelim, Midterm, Pre-Final, Finals</p>
+                    <ul class="text-xs text-left text-slate-500 space-y-1">
+                        <li><i class="fas fa-check text-blue-500 mr-2"></i>1.0 - 5.0 Grading Scale</li>
+                        <li><i class="fas fa-check text-blue-500 mr-2"></i>LMS (40%) + F2F (60%)</li>
+                        <li><i class="fas fa-check text-blue-500 mr-2"></i>Prelim/Midterm/PreFinal 20%, Finals 40%</li>
+                    </ul>
+                </button>
+
+                <button onclick="selectMode('shs')" class="mode-btn group bg-gradient-to-br from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 border-2 border-emerald-300 rounded-xl p-8 transition-all transform hover:-translate-y-1">
+                    <div class="text-emerald-600 text-5xl mb-4"><i class="fas fa-school"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Senior High School</h3>
+                    <p class="text-sm text-slate-600 mb-4">2 Quarters per Semester</p>
+                    <ul class="text-xs text-left text-slate-500 space-y-1">
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>1-100 Grading Scale</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Written Work 20%</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Performance Task 60%</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Quarterly Assessment 20%</li>
+                    </ul>
+                </button>
+            </div>
+        </div>
+
+        <div id="step-upload" class="hidden max-w-3xl mx-auto bg-white rounded-xl shadow-xl p-12 text-center border border-slate-200 mt-10 fade-in relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
             
             <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                 <i class="fas fa-file-csv text-blue-600 text-4xl"></i>
             </div>
             <h2 class="text-3xl font-bold text-slate-800 mb-3">Import Class Data</h2>
-            <p class="text-slate-500 mb-10 text-lg">Upload your Google Classroom CSV export to begin.</p>
+            <p class="text-slate-500 mb-4">Upload your Google Classroom CSV export to begin.</p>
+            <p class="text-sm text-blue-600 font-semibold mb-8" id="modeIndicator"></p>
             
             <label class="cursor-pointer inline-block group">
                 <input type="file" id="csvFile" accept=".csv" class="hidden" />
-                <div class="bg-slate-900 group-hover:bg-blue-600 text-white font-semibold py-4 px-10 rounded-full shadow-xl transition-all transform group-hover:-translate-y-1 flex items-center gap-3">
+                <div class="bg-slate-900 group-hover:bg-blue-600 text-white font-semibold py-4 px-10 rounded-full shadow-xl transition-all transform group-hover:-translate-y-1 flex items-center gap-3 justify-center mx-auto w-fit">
                     <span id="btnUploadText">Select CSV File</span> <i class="fas fa-arrow-right"></i>
                 </div>
             </label>
             <div id="loader" class="hidden mt-8 text-slate-400 text-sm font-semibold animate-pulse">
                 <i class="fas fa-circle-notch fa-spin mr-2"></i> Processing Data...
             </div>
+            <button onclick="backToModeSelect()" class="mt-6 text-slate-500 hover:text-slate-700 text-sm underline">
+                <i class="fas fa-arrow-left mr-1"></i> Change Mode
+            </button>
         </div>
 
         <div id="step-mapping" class="hidden max-w-[95%] mx-auto bg-white rounded-xl shadow-xl border border-slate-200 flex flex-col h-[82vh] fade-in">
@@ -121,15 +255,8 @@
             <div class="flex-grow overflow-auto p-0">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead class="bg-slate-100 text-xs uppercase text-slate-600 font-bold sticky top-0 z-10 shadow-sm">
-                        <tr>
-                            <th class="p-4 border-b">Activity Name</th>
-                            <th class="p-4 border-b w-32">Date</th>
-                            <th class="p-4 border-b w-24">Max Pts</th>
-                            <th class="p-4 border-b">Term</th>
-                            <th class="p-4 border-b">Source</th>
-                            <th class="p-4 border-b">Category</th>
-                            <th class="p-4 border-b">Type</th>
-                            <th class="p-4 border-b w-40">Action</th>
+                        <tr id="mappingHeader">
+                            <!-- Dynamic headers based on mode -->
                         </tr>
                     </thead>
                     <tbody id="mappingBody" class="divide-y divide-slate-100 bg-white"></tbody>
@@ -144,7 +271,7 @@
                     <div class="text-3xl font-bold text-slate-800" id="stat-avg">0.0</div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500 hover:shadow-md transition">
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Failed (5.0)</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1" id="stat-fail-label">Failed</div>
                     <div class="text-3xl font-bold text-slate-800" id="stat-fail">0</div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500 hover:shadow-md transition">
@@ -174,47 +301,8 @@
                 </div>
                 
                 <div class="overflow-auto max-h-[650px] table-container relative bg-slate-50">
-                    <table class="w-full text-center text-xs border-collapse">
-                        <thead class="bg-slate-100 text-slate-600 uppercase font-bold z-40">
-                            <tr>
-                                <th rowspan="2" class="p-3 text-left sticky-left-1 min-w-[220px] border-r border-b shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] cursor-pointer hover:bg-slate-200 bg-white" onclick="sortTable('name')">
-                                    Student Name <i class="fas fa-sort ml-1 text-slate-400"></i>
-                                </th>
-                                <th rowspan="2" class="p-3 border-r border-b min-w-[100px] bg-white text-slate-500">ID No.</th>
-                                
-                                <th colspan="4" class="p-1 border-r border-b bg-blue-50 text-blue-800 tracking-wider">Prelim (20%)</th>
-                                <th colspan="4" class="p-1 border-r border-b bg-green-50 text-green-800 tracking-wider">Midterm (20%)</th>
-                                <th colspan="4" class="p-1 border-r border-b bg-orange-50 text-orange-800 tracking-wider">Pre-Final (20%)</th>
-                                <th colspan="4" class="p-1 border-r border-b bg-purple-50 text-purple-800 tracking-wider">Finals (40%)</th>
-                                
-                                <th rowspan="2" class="p-3 border-l border-b bg-slate-800 text-white cursor-pointer hover:bg-slate-700 min-w-[80px]" onclick="sortTable('grade')">
-                                    Final <i class="fas fa-sort ml-1 text-slate-400"></i>
-                                </th>
-                                <th rowspan="2" class="p-3 border-b min-w-[100px] bg-slate-100">Actions</th>
-                            </tr>
-                            <tr class="text-[10px] tracking-tight font-semibold">
-                                <th class="bg-blue-50 border-b text-slate-500 py-2 w-12">LMS</th>
-                                <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="F2F Lecture">Lec</th>
-                                <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="F2F Lab">Lab</th>
-                                <th class="bg-blue-100 border-r border-b font-bold py-2 w-12 text-blue-900">TOT</th>
-                                
-                                <th class="bg-green-50 border-b text-slate-500 py-2 w-12">LMS</th>
-                                <th class="bg-green-50 border-b text-slate-500 py-2 w-12">Lec</th>
-                                <th class="bg-green-50 border-b text-slate-500 py-2 w-12">Lab</th>
-                                <th class="bg-green-100 border-r border-b font-bold py-2 w-12 text-green-900">TOT</th>
-
-                                <th class="bg-orange-50 border-b text-slate-500 py-2 w-12">LMS</th>
-                                <th class="bg-orange-50 border-b text-slate-500 py-2 w-12">Lec</th>
-                                <th class="bg-orange-50 border-b text-slate-500 py-2 w-12">Lab</th>
-                                <th class="bg-orange-100 border-r border-b font-bold py-2 w-12 text-orange-900">TOT</th>
-
-                                <th class="bg-purple-50 border-b text-slate-500 py-2 w-12">LMS</th>
-                                <th class="bg-purple-50 border-b text-slate-500 py-2 w-12">Lec</th>
-                                <th class="bg-purple-50 border-b text-slate-500 py-2 w-12">Lab</th>
-                                <th class="bg-purple-100 border-r border-b font-bold py-2 w-12 text-purple-900">TOT</th>
-                            </tr>
-                        </thead>
-                        <tbody id="masterBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                    <table class="w-full text-center text-xs border-collapse" id="masterTable">
+                        <!-- Dynamic table based on mode -->
                     </table>
                 </div>
             </div>
@@ -222,7 +310,7 @@
     </main>
 
     <div id="modalContainer" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col transform transition-all scale-100">
+        <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
             
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print flex-shrink-0">
                 <h2 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-id-card text-blue-400"></i> Student Report Card</h2>
@@ -236,17 +324,12 @@
                 </div>
             </div>
 
-            <div class="p-10 overflow-y-auto print:p-0 print:overflow-visible bg-slate-50 print:bg-white">
+            <div class="p-10 overflow-y-auto print:overflow-visible bg-slate-50 print:bg-white print:p-8">
                 
-                <div class="text-center mb-10 hidden print:block border-b-2 border-slate-900 pb-6">
-                    <div class="flex justify-center mb-4 text-3xl text-blue-900"><i class="fas fa-university"></i></div>
-                    <h1 class="text-4xl font-bold uppercase text-slate-900 tracking-widest mb-1">BemmyGail Academy</h1>
-                    <p class="text-sm text-slate-500 uppercase tracking-[0.2em]">Official Grade Transcript</p>
-                </div>
-
-                <div class="flex justify-between items-end border-b border-slate-200 pb-8 mb-8 print:border-none bg-white p-6 rounded-xl shadow-sm print:shadow-none print:p-0">
+                <!-- Student Info Section -->
+                <div class="flex justify-between items-end border-b-2 border-slate-300 pb-6 mb-6 bg-white p-6 rounded-xl shadow-sm break-inside-avoid">
                     <div class="flex gap-6 items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-500 text-3xl border border-blue-200 shadow-inner print:hidden">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-500 text-3xl border border-blue-200 shadow-inner">
                             <i class="fas fa-user-graduate"></i>
                         </div>
                         <div>
@@ -255,59 +338,33 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <div class="inline-block bg-slate-100 px-6 py-3 rounded-lg border border-slate-200 print:bg-white print:border-slate-800">
+                        <div class="inline-block bg-slate-100 px-6 py-3 rounded-lg border border-slate-300">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Student ID</p>
                             <h3 class="text-2xl font-mono font-bold text-slate-700" id="rep-id">--</h3>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                    <div class="md:col-span-1 bg-gradient-to-br from-white to-blue-50 rounded-xl p-8 border border-blue-100 text-center shadow-md flex flex-col justify-center items-center relative overflow-hidden print:border-slate-300">
-                        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                        <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">Final Grade</p>
-                        <div class="text-8xl font-black text-slate-800 mb-1 tracking-tighter" id="rep-grade">1.0</div>
-                        <div class="text-xl font-medium text-slate-500" id="rep-percent">98.5%</div>
-                        <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border">Base-50 Scale</div>
-                    </div>
-
-                    <div class="md:col-span-2 flex flex-col md:flex-row gap-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 print:border-none print:shadow-none print:p-0">
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-slate-700 text-sm border-b pb-3 mb-3 uppercase tracking-wide flex items-center gap-2">
-                                <i class="fas fa-list-ol text-blue-400"></i> Term Summary
-                            </h4>
-                            <table class="w-full text-sm">
-                                <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
-                                    <tr>
-                                        <th class="p-2 text-left rounded-l-md">Term</th>
-                                        <th class="p-2 text-center">LMS</th>
-                                        <th class="p-2 text-center">F2F (Lec/Lab)</th>
-                                        <th class="p-2 text-right rounded-r-md">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rep-term-rows" class="divide-y divide-slate-50 text-slate-700"></tbody>
-                            </table>
-                        </div>
-                        <div class="w-full md:w-1/3 flex items-center justify-center h-48 relative border-l border-slate-100 pl-4 print:border-none">
-                            <canvas id="gradeChart"></canvas>
-                        </div>
-                    </div>
+                <!-- Grade Summary Section -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 break-inside-avoid" id="reportGradeSummary">
+                    <!-- Dynamic content based on mode -->
                 </div>
 
-                <div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200 print:border-none print:shadow-none print:p-0">
-                    <h4 class="font-bold text-slate-700 text-sm border-b pb-3 mb-4 uppercase tracking-wide flex items-center gap-2">
+                <!-- Detailed Activity Log -->
+                <div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-slate-700 text-sm border-b border-slate-200 pb-3 mb-4 uppercase tracking-wide flex items-center gap-2">
                         <i class="fas fa-history text-blue-400"></i> Detailed Activity Log
                     </h4>
-                    <div class="rounded-lg overflow-hidden border border-slate-100">
-                        <div class="overflow-x-auto max-h-64 print:max-h-none">
+                    <div class="rounded-lg overflow-hidden border border-slate-200">
+                        <div class="overflow-x-auto">
                             <table class="w-full text-xs text-left">
-                                <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-bold">
                                     <tr>
-                                        <th class="p-3 w-28">Date</th>
-                                        <th class="p-3">Activity Name</th>
-                                        <th class="p-3">Category</th>
-                                        <th class="p-3 text-right">Score / Max</th>
-                                        <th class="p-3 text-right">Weight</th>
+                                        <th class="p-3 w-28 border-b border-slate-200">Date</th>
+                                        <th class="p-3 border-b border-slate-200">Activity Name</th>
+                                        <th class="p-3 border-b border-slate-200">Category</th>
+                                        <th class="p-3 text-right border-b border-slate-200">Score / Max</th>
+                                        <th class="p-3 text-right border-b border-slate-200">Weight</th>
                                     </tr>
                                 </thead>
                                 <tbody id="rep-details" class="divide-y divide-slate-100"></tbody>
@@ -316,7 +373,8 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-xl border border-blue-100 bg-blue-50/50 print:bg-white print:border-none print:p-0">
+                <!-- Attendance & Comments -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-xl border border-blue-200 bg-blue-50/50 mb-8 break-inside-avoid">
                     <div>
                         <h5 class="text-xs font-bold uppercase text-slate-500 mb-3 flex items-center gap-2"><i class="fas fa-clock"></i> Attendance & Bonus</h5>
                         <div class="flex gap-4 mb-2">
@@ -331,7 +389,6 @@
                             <div class="w-1/3 relative">
                                 <label class="text-[10px] uppercase font-bold text-emerald-600 block mb-1">Add Bonus (+)</label>
                                 <input type="number" id="inp-bonus" step="0.01" class="w-full border-emerald-300 text-emerald-700 font-bold rounded p-2 text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white shadow-sm font-mono" placeholder="0">
-                                <div class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
                             </div>
                         </div>
                         <p class="text-[10px] text-emerald-600 italic mt-1">* Bonus is added directly to Grand Total</p>
@@ -342,7 +399,8 @@
                     </div>
                 </div>
 
-                <div class="flex justify-between mt-12 pt-10 invisible print:visible">
+                <!-- Signature Section -->
+                <div class="flex justify-between mt-12 pt-10 invisible print:visible break-inside-avoid">
                     <div class="w-1/3 text-center">
                         <div class="border-t-2 border-slate-800 pt-2 text-xs font-bold uppercase text-slate-800">Bemmygail Abanilla</div>
                         <div class="text-[10px] text-slate-500 uppercase tracking-wider">Course Instructor</div>
@@ -358,13 +416,32 @@
     </div>
 
     <script>
-        // --- CONSTANTS & CONFIG ---
-        const WEIGHTS = {
-            lec: { quiz: 0.4, exam: 0.5, bonus: 0.1 },
-            lab: { quiz: 0.4, exam: 0.5, bonus: 0.1 },
-            f2f: { lec: 0.4, lab: 0.6 },
-            term: { lms: 0.4, f2f: 0.6 },
-            grand: { prelim: 0.2, midterm: 0.2, prefinal: 0.2, final: 0.4 }
+        // ============================================
+        // GLOBAL CONFIGURATION & VARIABLES
+        // ============================================
+        
+        let currentMode = null; // 'college' or 'shs'
+        
+        // College Mode Weights - MODIFY THESE PERCENTAGES HERE
+        const COLLEGE_WEIGHTS = {
+            lec: { quiz: 0.4, exam: 0.5, bonus: 0.1 },  // Lecture: Quiz 40%, Exam 50%, Bonus 10%
+            lab: { quiz: 0.4, exam: 0.5, bonus: 0.1 },  // Lab: Quiz 40%, Exam 50%, Bonus 10%
+            f2f: { lec: 0.4, lab: 0.6 },                // F2F: Lecture 40%, Lab 60%
+            term: { lms: 0.4, f2f: 0.6 },               // Term: LMS 40%, F2F 60%
+            grand: { prelim: 0.2, midterm: 0.2, prefinal: 0.2, final: 0.4 }  // Grand: Prelim 20%, Midterm 20%, PreFinal 20%, Finals 40%
+        };
+
+        // SHS Mode Weights - MODIFY THESE PERCENTAGES HERE
+        const SHS_WEIGHTS = {
+            quarter: { 
+                written: 0.20,      // Written Work 20%
+                performance: 0.60,  // Performance Task 60%
+                assessment: 0.20    // Quarterly Assessment 20%
+            },
+            semester: { 
+                q3: 0.5,  // Quarter 3: 50%
+                q4: 0.5   // Quarter 4: 50%
+            }
         };
 
         // --- GLOBAL VARIABLES ---
@@ -375,14 +452,39 @@
         let mapping = [];
         let students = [];
         let chartInstance = null;
-        let currentStudentIdx = -1; // To track open modal
+        let currentStudentIdx = -1;
 
-        // --- 1. FILE UPLOAD & PARSING ---
+        // ============================================
+        // MODE SELECTION
+        // ============================================
+        
+        function selectMode(mode) {
+            currentMode = mode;
+            document.getElementById('step-mode-select').classList.add('hidden');
+            document.getElementById('step-upload').classList.remove('hidden');
+            
+            const indicator = document.getElementById('modeIndicator');
+            if(mode === 'college') {
+                indicator.innerHTML = '<i class="fas fa-university mr-2"></i>College Mode Selected';
+            } else {
+                indicator.innerHTML = '<i class="fas fa-school mr-2"></i>Senior High School Mode Selected';
+            }
+        }
+
+        function backToModeSelect() {
+            document.getElementById('step-upload').classList.add('hidden');
+            document.getElementById('step-mode-select').classList.remove('hidden');
+            currentMode = null;
+        }
+
+        // ============================================
+        // FILE UPLOAD & PARSING
+        // ============================================
+        
         document.getElementById('csvFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if(!file) return;
 
-            // UI Feedback
             document.getElementById('loader').classList.remove('hidden');
             document.getElementById('btnUploadText').innerText = "Parsing...";
             document.getElementById('errorBox').classList.add('hidden');
@@ -392,7 +494,7 @@
                 skipEmptyLines: 'greedy',
                 complete: function(results) {
                     try {
-                        setTimeout(() => { // UI Thread yield
+                        setTimeout(() => {
                             analyzeCSVStructure(results.data);
                             document.getElementById('loader').classList.add('hidden');
                             document.getElementById('btnUploadText').innerText = "Select CSV File";
@@ -414,7 +516,10 @@
             document.getElementById('errorText').innerText = msg;
         }
 
-        // --- 2. DATA ANALYSIS ---
+        // ============================================
+        // DATA ANALYSIS
+        // ============================================
+        
         function analyzeCSVStructure(data) {
             let headerIdx = -1;
             for(let i=0; i<Math.min(data.length, 15); i++) {
@@ -428,12 +533,11 @@
             if(headerIdx === -1) throw new Error("Could not detect header row. Ensure CSV has 'Last Name' and 'Email' columns.");
             headers = data[headerIdx];
 
-            let pointsRow = null, dateRow = null, hintRow = null;
+            let pointsRow = null, dateRow = null;
             for(let i = headerIdx + 1; i < Math.min(data.length, headerIdx + 6); i++) {
                 const row = data[i];
                 if(row[0] === "Points" || row.includes("Points")) pointsRow = row;
                 else if(row[0] === "Date" || row.includes("Date")) dateRow = row;
-                else if(row.join(' ').toLowerCase().includes('lec') && row.join(' ').toLowerCase().includes('lab')) hintRow = row;
             }
 
             headers.forEach((h, i) => {
@@ -447,16 +551,43 @@
                 return row[0] && row[0].length > 1;
             });
 
-            buildMappingTable(hintRow);
+            buildMappingTable();
             
             document.getElementById('step-upload').classList.add('hidden');
             document.getElementById('step-mapping').classList.remove('hidden');
         }
 
-        // --- 3. MAPPING INTERFACE ---
-        function buildMappingTable(hintRow) {
+        // ============================================
+        // MAPPING INTERFACE
+        // ============================================
+        
+        function buildMappingTable() {
+            const headerRow = document.getElementById('mappingHeader');
             const tbody = document.getElementById('mappingBody');
             tbody.innerHTML = '';
+            
+            // Build header based on mode
+            if(currentMode === 'college') {
+                headerRow.innerHTML = `
+                    <th class="p-4 border-b">Activity Name</th>
+                    <th class="p-4 border-b w-32">Date</th>
+                    <th class="p-4 border-b w-24">Max Pts</th>
+                    <th class="p-4 border-b">Term</th>
+                    <th class="p-4 border-b">Source</th>
+                    <th class="p-4 border-b">Category</th>
+                    <th class="p-4 border-b">Type</th>
+                    <th class="p-4 border-b w-40">Action</th>
+                `;
+            } else {
+                headerRow.innerHTML = `
+                    <th class="p-4 border-b">Activity Name</th>
+                    <th class="p-4 border-b w-32">Date</th>
+                    <th class="p-4 border-b w-24">Max Pts</th>
+                    <th class="p-4 border-b">Quarter</th>
+                    <th class="p-4 border-b">Category</th>
+                    <th class="p-4 border-b w-40">Action</th>
+                `;
+            }
 
             headers.forEach((h, i) => {
                 if(["Last Name", "First Name", "Email Address"].some(k => h.includes(k))) return;
@@ -466,69 +597,115 @@
                 tr.dataset.idx = i;
 
                 let lowH = h.toLowerCase();
-                let hint = hintRow ? hintRow[i].toLowerCase() : "";
                 let isID = lowH.includes("id") || lowH.includes("student number");
                 let isAtt = lowH.includes("attendance");
                 
-                let defTerm = "prelim";
-                if(lowH.includes("midterm")) defTerm = "midterm";
-                else if(lowH.includes("prefinal") || lowH.includes("pre-final")) defTerm = "prefinal";
-                else if(lowH.includes("final") && !lowH.includes("pre")) defTerm = "final";
-
-                let defCat = (hint.includes("lab") || lowH.includes("lab")) ? "lab" : "lec";
-                let defType = "quiz";
-                if(lowH.includes("exam")) defType = "exam";
-                else if(lowH.includes("bonus")) defType = "bonus";
-
-                tr.innerHTML = `
-                    <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h}">${h}</td>
-                    <td class="p-3 text-xs text-slate-500">${headerDates[i]}</td>
-                    <td class="p-3 text-slate-500">${maxPoints[i]}</td>
-                    <td class="p-3">
-                        <select class="map-term w-full border rounded text-xs p-1.5 bg-white shadow-sm">
-                            <option value="prelim" ${defTerm==='prelim'?'selected':''}>Prelim</option>
-                            <option value="midterm" ${defTerm==='midterm'?'selected':''}>Midterm</option>
-                            <option value="prefinal" ${defTerm==='prefinal'?'selected':''}>Pre-Final</option>
-                            <option value="final" ${defTerm==='final'?'selected':''}>Finals</option>
-                        </select>
-                    </td>
-                    <td class="p-3">
-                        <select class="map-source w-full border rounded text-xs p-1.5 bg-white shadow-sm" onchange="uiUpdate(this)">
-                            <option value="f2f">F2F</option>
-                            <option value="lms">LMS</option>
-                        </select>
-                    </td>
-                    <td class="p-3">
-                        <select class="map-cat w-full border rounded text-xs p-1.5 bg-white shadow-sm" ${defCat==='lab'?'selected':''}>
-                            <option value="lec" ${defCat==='lec'?'selected':''}>Lecture</option>
-                            <option value="lab" ${defCat==='lab'?'selected':''}>Lab</option>
-                        </select>
-                    </td>
-                    <td class="p-3">
-                        <select class="map-type w-full border rounded text-xs p-1.5 bg-white shadow-sm">
-                            <option value="quiz" ${defType==='quiz'?'selected':''}>Quiz/Act (40%)</option>
-                            <option value="exam" ${defType==='exam'?'selected':''}>Exam (50%)</option>
-                            <option value="bonus" ${defType==='bonus'?'selected':''}>Bonus (10%)</option>
-                        </select>
-                    </td>
-                    <td class="p-3">
-                        <select class="map-action w-full border rounded text-xs font-bold p-1.5 bg-slate-50 shadow-sm" onchange="uiUpdate(this)">
-                            <option value="grade" ${isID||isAtt?'':'selected'}>Grade</option>
-                            <option value="id" ${isID?'selected':''}>Set as ID</option>
-                            <option value="attendance" ${isAtt?'selected':''}>Attendance</option>
-                            <option value="ignore">Ignore</option>
-                        </select>
-                    </td>
-                `;
+                if(currentMode === 'college') {
+                    buildCollegeMappingRow(tr, h, i, lowH, isID, isAtt);
+                } else {
+                    buildSHSMappingRow(tr, h, i, lowH, isID, isAtt);
+                }
+                
                 tbody.appendChild(tr);
-                uiUpdate(tr.querySelector('.map-action'));
             });
+        }
+
+        function buildCollegeMappingRow(tr, h, i, lowH, isID, isAtt) {
+            let defTerm = "prelim";
+            if(lowH.includes("midterm")) defTerm = "midterm";
+            else if(lowH.includes("prefinal") || lowH.includes("pre-final")) defTerm = "prefinal";
+            else if(lowH.includes("final") && !lowH.includes("pre")) defTerm = "final";
+
+            let defCat = lowH.includes("lab") ? "lab" : "lec";
+            let defType = "quiz";
+            if(lowH.includes("exam")) defType = "exam";
+            else if(lowH.includes("bonus")) defType = "bonus";
+
+            tr.innerHTML = `
+                <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h}">${h}</td>
+                <td class="p-3 text-xs text-slate-500">${headerDates[i]}</td>
+                <td class="p-3 text-slate-500">${maxPoints[i]}</td>
+                <td class="p-3">
+                    <select class="map-term w-full border rounded text-xs p-1.5 bg-white shadow-sm">
+                        <option value="prelim" ${defTerm==='prelim'?'selected':''}>Prelim</option>
+                        <option value="midterm" ${defTerm==='midterm'?'selected':''}>Midterm</option>
+                        <option value="prefinal" ${defTerm==='prefinal'?'selected':''}>Pre-Final</option>
+                        <option value="final" ${defTerm==='final'?'selected':''}>Finals</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="map-source w-full border rounded text-xs p-1.5 bg-white shadow-sm" onchange="uiUpdate(this)">
+                        <option value="f2f">F2F</option>
+                        <option value="lms">LMS</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="map-cat w-full border rounded text-xs p-1.5 bg-white shadow-sm">
+                        <option value="lec" ${defCat==='lec'?'selected':''}>Lecture</option>
+                        <option value="lab" ${defCat==='lab'?'selected':''}>Lab</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="map-type w-full border rounded text-xs p-1.5 bg-white shadow-sm">
+                        <option value="quiz" ${defType==='quiz'?'selected':''}>Quiz/Act (40%)</option>
+                        <option value="exam" ${defType==='exam'?'selected':''}>Exam (50%)</option>
+                        <option value="bonus" ${defType==='bonus'?'selected':''}>Bonus (10%)</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="map-action w-full border rounded text-xs font-bold p-1.5 bg-slate-50 shadow-sm" onchange="uiUpdate(this)">
+                        <option value="grade" ${isID||isAtt?'':'selected'}>Grade</option>
+                        <option value="id" ${isID?'selected':''}>Set as ID</option>
+                        <option value="attendance" ${isAtt?'selected':''}>Attendance</option>
+                        <option value="ignore">Ignore</option>
+                    </select>
+                </td>
+            `;
+            uiUpdate(tr.querySelector('.map-action'));
+        }
+
+        function buildSHSMappingRow(tr, h, i, lowH, isID, isAtt) {
+            let defQuarter = "q3";
+            if(lowH.includes("q4") || lowH.includes("quarter 4") || lowH.includes("4th quarter")) {
+                defQuarter = "q4";
+            }
+
+            let defCat = "written";
+            if(lowH.includes("performance") || lowH.includes("pt")) defCat = "performance";
+            else if(lowH.includes("assessment") || lowH.includes("exam") || lowH.includes("qa")) defCat = "assessment";
+
+            tr.innerHTML = `
+                <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h}">${h}</td>
+                <td class="p-3 text-xs text-slate-500">${headerDates[i]}</td>
+                <td class="p-3 text-slate-500">${maxPoints[i]}</td>
+                <td class="p-3">
+                    <select class="map-quarter w-full border rounded text-xs p-1.5 bg-white shadow-sm">
+                        <option value="q3" ${defQuarter==='q3'?'selected':''}>Quarter 3</option>
+                        <option value="q4" ${defQuarter==='q4'?'selected':''}>Quarter 4</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="map-category w-full border rounded text-xs p-1.5 bg-white shadow-sm">
+                        <option value="written" ${defCat==='written'?'selected':''}>Written Work (20%)</option>
+                        <option value="performance" ${defCat==='performance'?'selected':''}>Performance Task (60%)</option>
+                        <option value="assessment" ${defCat==='assessment'?'selected':''}>Quarterly Assessment (20%)</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="map-action w-full border rounded text-xs font-bold p-1.5 bg-slate-50 shadow-sm" onchange="uiUpdate(this)">
+                        <option value="grade" ${isID||isAtt?'':'selected'}>Grade</option>
+                        <option value="id" ${isID?'selected':''}>Set as ID</option>
+                        <option value="attendance" ${isAtt?'selected':''}>Attendance</option>
+                        <option value="ignore">Ignore</option>
+                    </select>
+                </td>
+            `;
+            uiUpdate(tr.querySelector('.map-action'));
         }
 
         function uiUpdate(el) {
             const tr = el.closest('tr');
             const action = tr.querySelector('.map-action').value;
-            const source = tr.querySelector('.map-source').value;
             const selects = tr.querySelectorAll('select:not(.map-action)');
 
             if(action !== 'grade') {
@@ -537,24 +714,43 @@
             } else {
                 selects.forEach(s => s.disabled = false);
                 tr.classList.remove('opacity-50');
-                if(source === 'lms') {
-                    tr.querySelector('.map-cat').disabled = true;
-                    tr.querySelector('.map-type').disabled = true;
+                
+                if(currentMode === 'college') {
+                    const source = tr.querySelector('.map-source');
+                    if(source && source.value === 'lms') {
+                        tr.querySelector('.map-cat').disabled = true;
+                        tr.querySelector('.map-type').disabled = true;
+                    }
                 }
             }
         }
 
-        // --- 4. CALCULATION CORE ---
+        // ============================================
+        // CALCULATION CORE
+        // ============================================
+        
         function processGrades() {
+            if(currentMode === 'college') {
+                processCollegeGrades();
+            } else {
+                processSHSGrades();
+            }
+            
+            renderDashboard();
+            document.getElementById('step-mapping').classList.add('hidden');
+            document.getElementById('step-dashboard').classList.remove('hidden');
+        }
+
+        function processCollegeGrades() {
             mapping = Array.from(document.querySelectorAll('#mappingBody tr')).map(tr => ({
                 idx: parseInt(tr.dataset.idx),
                 name: tr.cells[0].innerText,
                 date: tr.cells[1].innerText,
                 max: parseFloat(tr.cells[2].innerText),
-                term: tr.querySelector('.map-term').value,
-                source: tr.querySelector('.map-source').value,
-                cat: tr.querySelector('.map-cat').value,
-                type: tr.querySelector('.map-type').value,
+                term: tr.querySelector('.map-term')?.value,
+                source: tr.querySelector('.map-source')?.value,
+                cat: tr.querySelector('.map-cat')?.value,
+                type: tr.querySelector('.map-type')?.value,
                 action: tr.querySelector('.map-action').value
             }));
 
@@ -567,10 +763,10 @@
                     name: `${row[nameIdx]}, ${row[firstIdx]}`,
                     id: idMap ? row[idMap.idx] : "N/A",
                     attendance: 0,
-                    bonusPoints: 0, // Additional bonus from input
+                    bonusPoints: 0,
                     terms: {},
-                    calculatedGrandTotal: 0, // Before bonus
-                    grandTotal: 0, // After bonus
+                    calculatedGrandTotal: 0,
+                    grandTotal: 0,
                     history: []
                 };
 
@@ -591,7 +787,7 @@
                         if(m.source === 'lms') weightLog = 40; 
                         else {
                             let catW = m.cat === 'lec' ? 0.4 : 0.6;
-                            let typeW = WEIGHTS[m.cat][m.type];
+                            let typeW = COLLEGE_WEIGHTS[m.cat][m.type];
                             weightLog = (0.6 * catW * typeW * 100).toFixed(1);
                         }
 
@@ -611,7 +807,6 @@
                     }
                 });
 
-                // Compute Terms
                 ['prelim','midterm','prefinal','final'].forEach(tKey => {
                     let t = s.terms[tKey];
                     let lmsG = t.lms.m > 0 ? (t.lms.s / t.lms.m)*100 : 0;
@@ -619,30 +814,106 @@
 
                     const calc = (b) => b.m > 0 ? (b.s / b.m)*100 : 0;
                     
-                    let lecG = (calc(t.f2f.lec.quiz) * WEIGHTS.lec.quiz) + (calc(t.f2f.lec.exam) * WEIGHTS.lec.exam) + (calc(t.f2f.lec.bonus) * WEIGHTS.lec.bonus);
-                    let labG = (calc(t.f2f.lab.quiz) * WEIGHTS.lab.quiz) + (calc(t.f2f.lab.exam) * WEIGHTS.lab.exam) + (calc(t.f2f.lab.bonus) * WEIGHTS.lab.bonus);
+                    let lecG = (calc(t.f2f.lec.quiz) * COLLEGE_WEIGHTS.lec.quiz) + (calc(t.f2f.lec.exam) * COLLEGE_WEIGHTS.lec.exam) + (calc(t.f2f.lec.bonus) * COLLEGE_WEIGHTS.lec.bonus);
+                    let labG = (calc(t.f2f.lab.quiz) * COLLEGE_WEIGHTS.lab.quiz) + (calc(t.f2f.lab.exam) * COLLEGE_WEIGHTS.lab.exam) + (calc(t.f2f.lab.bonus) * COLLEGE_WEIGHTS.lab.bonus);
                     
-                    let f2fG = (lecG * WEIGHTS.f2f.lec) + (labG * WEIGHTS.f2f.lab);
+                    let f2fG = (lecG * COLLEGE_WEIGHTS.f2f.lec) + (labG * COLLEGE_WEIGHTS.f2f.lab);
                     t.f2fFinal = f2fG;
-                    t.lecFinal = lecG; // For display
-                    t.labFinal = labG; // For display
+                    t.lecFinal = lecG;
+                    t.labFinal = labG;
 
-                    t.final = (lmsG * WEIGHTS.term.lms) + (f2fG * WEIGHTS.term.f2f);
+                    t.final = (lmsG * COLLEGE_WEIGHTS.term.lms) + (f2fG * COLLEGE_WEIGHTS.term.f2f);
                 });
 
-                s.calculatedGrandTotal = (s.terms.prelim.final * WEIGHTS.grand.prelim) + 
-                               (s.terms.midterm.final * WEIGHTS.grand.midterm) + 
-                               (s.terms.prefinal.final * WEIGHTS.grand.prefinal) + 
-                               (s.terms.final.final * WEIGHTS.grand.final);
+                s.calculatedGrandTotal = (s.terms.prelim.final * COLLEGE_WEIGHTS.grand.prelim) + 
+                               (s.terms.midterm.final * COLLEGE_WEIGHTS.grand.midterm) + 
+                               (s.terms.prefinal.final * COLLEGE_WEIGHTS.grand.prefinal) + 
+                               (s.terms.final.final * COLLEGE_WEIGHTS.grand.final);
                 
-                s.grandTotal = s.calculatedGrandTotal; // Init
+                s.grandTotal = s.calculatedGrandTotal;
                 s.transmuted = transmute(s.grandTotal);
                 return s;
             });
+        }
 
-            renderDashboard();
-            document.getElementById('step-mapping').classList.add('hidden');
-            document.getElementById('step-dashboard').classList.remove('hidden');
+        function processSHSGrades() {
+            mapping = Array.from(document.querySelectorAll('#mappingBody tr')).map(tr => ({
+                idx: parseInt(tr.dataset.idx),
+                name: tr.cells[0].innerText,
+                date: tr.cells[1].innerText,
+                max: parseFloat(tr.cells[2].innerText),
+                quarter: tr.querySelector('.map-quarter')?.value,
+                category: tr.querySelector('.map-category')?.value,
+                action: tr.querySelector('.map-action').value
+            }));
+
+            const nameIdx = headers.findIndex(h => h.includes("Last Name"));
+            const firstIdx = headers.findIndex(h => h.includes("First Name"));
+            const idMap = mapping.find(m => m.action === 'id');
+
+            students = rawData.map(row => {
+                let s = {
+                    name: `${row[nameIdx]}, ${row[firstIdx]}`,
+                    id: idMap ? row[idMap.idx] : "N/A",
+                    attendance: 0,
+                    bonusPoints: 0,
+                    quarters: {
+                        q3: { written: {s:0, m:0}, performance: {s:0, m:0}, assessment: {s:0, m:0} },
+                        q4: { written: {s:0, m:0}, performance: {s:0, m:0}, assessment: {s:0, m:0} }
+                    },
+                    calculatedGrandTotal: 0,
+                    grandTotal: 0,
+                    history: []
+                };
+
+                mapping.forEach(m => {
+                    let val = parseFloat(row[m.idx]) || 0;
+                    
+                    if(m.action === 'attendance') {
+                        if(val > 0 || (row[m.idx] && row[m.idx].toLowerCase().includes('p'))) s.attendance++;
+                    } else if(m.action === 'grade') {
+                        let weightPct = 0;
+                        if(m.category === 'written') weightPct = 20;
+                        else if(m.category === 'performance') weightPct = 60;
+                        else if(m.category === 'assessment') weightPct = 20;
+
+                        s.history.push({
+                            date: m.date,
+                            name: m.name,
+                            quarter: m.quarter,
+                            category: m.category,
+                            score: val,
+                            max: m.max,
+                            weight: weightPct
+                        });
+
+                        let q = s.quarters[m.quarter];
+                        q[m.category].s += val;
+                        q[m.category].m += m.max;
+                    }
+                });
+
+                // Calculate quarter grades
+                ['q3', 'q4'].forEach(qKey => {
+                    let q = s.quarters[qKey];
+                    const calc = (cat) => cat.m > 0 ? (cat.s / cat.m) * 100 : 0;
+                    
+                    q.writtenGrade = calc(q.written);
+                    q.performanceGrade = calc(q.performance);
+                    q.assessmentGrade = calc(q.assessment);
+                    
+                    q.final = (q.writtenGrade * SHS_WEIGHTS.quarter.written) + 
+                              (q.performanceGrade * SHS_WEIGHTS.quarter.performance) + 
+                              (q.assessmentGrade * SHS_WEIGHTS.quarter.assessment);
+                });
+
+                s.calculatedGrandTotal = (s.quarters.q3.final * SHS_WEIGHTS.semester.q3) + 
+                                        (s.quarters.q4.final * SHS_WEIGHTS.semester.q4);
+                
+                s.grandTotal = s.calculatedGrandTotal;
+                s.transmuted = s.grandTotal.toFixed(2); // No transmutation for SHS
+                return s;
+            });
         }
 
         function transmute(g) {
@@ -651,17 +922,71 @@
             return (3.0 - ((g-50)/50)*2.0).toFixed(2);
         }
 
-        // --- 5. RENDER DASHBOARD ---
+        // ============================================
+        // RENDER DASHBOARD
+        // ============================================
+        
         function renderDashboard() {
+            if(currentMode === 'college') {
+                renderCollegeDashboard();
+            } else {
+                renderSHSDashboard();
+            }
+        }
+
+        function renderCollegeDashboard() {
             let avg = students.reduce((a,b)=>a+b.grandTotal,0) / students.length || 0;
             document.getElementById('stat-avg').innerText = transmute(avg);
             document.getElementById('stat-fail').innerText = students.filter(s=>s.grandTotal<50).length;
+            document.getElementById('stat-fail-label').innerText = "Failed (5.0)";
             document.getElementById('stat-pass').innerText = Math.round((students.filter(s=>s.grandTotal>=50).length/students.length)*100) + "%";
             document.getElementById('stat-total').innerText = students.length;
 
-            const tbody = document.getElementById('masterBody');
-            tbody.innerHTML = '';
+            const table = document.getElementById('masterTable');
+            table.innerHTML = `
+                <thead class="bg-slate-100 text-slate-600 uppercase font-bold z-40">
+                    <tr>
+                        <th rowspan="2" class="p-3 text-left sticky-left-1 min-w-[220px] border-r border-b shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] cursor-pointer hover:bg-slate-200 bg-white" onclick="sortTable('name')">
+                            Student Name <i class="fas fa-sort ml-1 text-slate-400"></i>
+                        </th>
+                        <th rowspan="2" class="p-3 border-r border-b min-w-[100px] bg-white text-slate-500">ID No.</th>
+                        
+                        <th colspan="4" class="p-1 border-r border-b bg-blue-50 text-blue-800 tracking-wider">Prelim (20%)</th>
+                        <th colspan="4" class="p-1 border-r border-b bg-green-50 text-green-800 tracking-wider">Midterm (20%)</th>
+                        <th colspan="4" class="p-1 border-r border-b bg-orange-50 text-orange-800 tracking-wider">Pre-Final (20%)</th>
+                        <th colspan="4" class="p-1 border-r border-b bg-purple-50 text-purple-800 tracking-wider">Finals (40%)</th>
+                        
+                        <th rowspan="2" class="p-3 border-l border-b bg-slate-800 text-white cursor-pointer hover:bg-slate-700 min-w-[80px]" onclick="sortTable('grade')">
+                            Final <i class="fas fa-sort ml-1 text-slate-400"></i>
+                        </th>
+                        <th rowspan="2" class="p-3 border-b min-w-[100px] bg-slate-100">Actions</th>
+                    </tr>
+                    <tr class="text-[10px] tracking-tight font-semibold">
+                        <th class="bg-blue-50 border-b text-slate-500 py-2 w-12">LMS</th>
+                        <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="F2F Lecture">Lec</th>
+                        <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="F2F Lab">Lab</th>
+                        <th class="bg-blue-100 border-r border-b font-bold py-2 w-12 text-blue-900">TOT</th>
+                        
+                        <th class="bg-green-50 border-b text-slate-500 py-2 w-12">LMS</th>
+                        <th class="bg-green-50 border-b text-slate-500 py-2 w-12">Lec</th>
+                        <th class="bg-green-50 border-b text-slate-500 py-2 w-12">Lab</th>
+                        <th class="bg-green-100 border-r border-b font-bold py-2 w-12 text-green-900">TOT</th>
 
+                        <th class="bg-orange-50 border-b text-slate-500 py-2 w-12">LMS</th>
+                        <th class="bg-orange-50 border-b text-slate-500 py-2 w-12">Lec</th>
+                        <th class="bg-orange-50 border-b text-slate-500 py-2 w-12">Lab</th>
+                        <th class="bg-orange-100 border-r border-b font-bold py-2 w-12 text-orange-900">TOT</th>
+
+                        <th class="bg-purple-50 border-b text-slate-500 py-2 w-12">LMS</th>
+                        <th class="bg-purple-50 border-b text-slate-500 py-2 w-12">Lec</th>
+                        <th class="bg-purple-50 border-b text-slate-500 py-2 w-12">Lab</th>
+                        <th class="bg-purple-100 border-r border-b font-bold py-2 w-12 text-purple-900">TOT</th>
+                    </tr>
+                </thead>
+                <tbody id="masterBody" class="divide-y divide-slate-100 bg-white"></tbody>
+            `;
+
+            const tbody = document.getElementById('masterBody');
             students.forEach((s, i) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 border-b group transition text-slate-700";
@@ -678,9 +1003,75 @@
 
                 tr.innerHTML = `
                     <td class="p-3 text-left font-medium text-slate-900 sticky-left-1 border-r border-b group-hover:bg-blue-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] bg-white">${s.name}</td>
-                    <td class="p-3 text-xs border-r text-slate-500 bg-white font-mono sticky-left-2">${s.id}</td>
+                    <td class="p-3 text-xs border-r text-slate-500 bg-white font-mono">${s.id}</td>
                     ${termCols}
                     <td class="p-3 font-bold text-lg ${s.grandTotal < 50 ? 'text-red-600':'text-emerald-600'} border-l border-b bg-white">${s.transmuted}</td>
+                    <td class="p-3 text-right bg-white border-b">
+                        <button onclick="viewReport(${i})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded mr-1 transition"><i class="fas fa-eye"></i></button>
+                        <button onclick="deleteRow(${i})" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded transition"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSHSDashboard() {
+            let avg = students.reduce((a,b)=>a+b.grandTotal,0) / students.length || 0;
+            document.getElementById('stat-avg').innerText = avg.toFixed(2);
+            document.getElementById('stat-fail').innerText = students.filter(s=>s.grandTotal<75).length;
+            document.getElementById('stat-fail-label').innerText = "Below 75";
+            document.getElementById('stat-pass').innerText = Math.round((students.filter(s=>s.grandTotal>=75).length/students.length)*100) + "%";
+            document.getElementById('stat-total').innerText = students.length;
+
+            const table = document.getElementById('masterTable');
+            table.innerHTML = `
+                <thead class="bg-slate-100 text-slate-600 uppercase font-bold z-40">
+                    <tr>
+                        <th rowspan="2" class="p-3 text-left sticky-left-1 min-w-[220px] border-r border-b shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] cursor-pointer hover:bg-slate-200 bg-white" onclick="sortTable('name')">
+                            Student Name <i class="fas fa-sort ml-1 text-slate-400"></i>
+                        </th>
+                        <th rowspan="2" class="p-3 border-r border-b min-w-[100px] bg-white text-slate-500">ID No.</th>
+                        
+                        <th colspan="4" class="p-1 border-r border-b bg-blue-50 text-blue-800 tracking-wider">Quarter 3 (50%)</th>
+                        <th colspan="4" class="p-1 border-r border-b bg-emerald-50 text-emerald-800 tracking-wider">Quarter 4 (50%)</th>
+                        
+                        <th rowspan="2" class="p-3 border-l border-b bg-slate-800 text-white cursor-pointer hover:bg-slate-700 min-w-[80px]" onclick="sortTable('grade')">
+                            Semestral <i class="fas fa-sort ml-1 text-slate-400"></i>
+                        </th>
+                        <th rowspan="2" class="p-3 border-b min-w-[100px] bg-slate-100">Actions</th>
+                    </tr>
+                    <tr class="text-[10px] tracking-tight font-semibold">
+                        <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="Written Work">WW</th>
+                        <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="Performance Task">PT</th>
+                        <th class="bg-blue-50 border-b text-slate-500 py-2 w-12" title="Quarterly Assessment">QA</th>
+                        <th class="bg-blue-100 border-r border-b font-bold py-2 w-12 text-blue-900">Grade</th>
+                        
+                        <th class="bg-emerald-50 border-b text-slate-500 py-2 w-12">WW</th>
+                        <th class="bg-emerald-50 border-b text-slate-500 py-2 w-12">PT</th>
+                        <th class="bg-emerald-50 border-b text-slate-500 py-2 w-12">QA</th>
+                        <th class="bg-emerald-100 border-r border-b font-bold py-2 w-12 text-emerald-900">Grade</th>
+                    </tr>
+                </thead>
+                <tbody id="masterBody" class="divide-y divide-slate-100 bg-white"></tbody>
+            `;
+
+            const tbody = document.getElementById('masterBody');
+            students.forEach((s, i) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50 border-b group transition text-slate-700";
+
+                tr.innerHTML = `
+                    <td class="p-3 text-left font-medium text-slate-900 sticky-left-1 border-r border-b group-hover:bg-blue-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] bg-white">${s.name}</td>
+                    <td class="p-3 text-xs border-r text-slate-500 bg-white font-mono">${s.id}</td>
+                    <td class="text-xs text-slate-400 border-l py-2">${s.quarters.q3.writtenGrade.toFixed(0)}</td>
+                    <td class="text-xs text-slate-400 py-2">${s.quarters.q3.performanceGrade.toFixed(0)}</td>
+                    <td class="text-xs text-slate-400 py-2">${s.quarters.q3.assessmentGrade.toFixed(0)}</td>
+                    <td class="text-xs font-bold text-slate-700 bg-slate-50 border-r py-2">${s.quarters.q3.final.toFixed(0)}</td>
+                    <td class="text-xs text-slate-400 border-l py-2">${s.quarters.q4.writtenGrade.toFixed(0)}</td>
+                    <td class="text-xs text-slate-400 py-2">${s.quarters.q4.performanceGrade.toFixed(0)}</td>
+                    <td class="text-xs text-slate-400 py-2">${s.quarters.q4.assessmentGrade.toFixed(0)}</td>
+                    <td class="text-xs font-bold text-slate-700 bg-slate-50 border-r py-2">${s.quarters.q4.final.toFixed(0)}</td>
+                    <td class="p-3 font-bold text-lg ${s.grandTotal < 75 ? 'text-red-600':'text-emerald-600'} border-l border-b bg-white">${s.transmuted}</td>
                     <td class="p-3 text-right bg-white border-b">
                         <button onclick="viewReport(${i})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded mr-1 transition"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteRow(${i})" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded transition"><i class="fas fa-trash"></i></button>
@@ -702,7 +1093,10 @@
             document.getElementById('step-mapping').classList.remove('hidden');
         }
 
-        // --- 6. REPORT MODAL & BONUS LOGIC ---
+        // ============================================
+        // REPORT MODAL
+        // ============================================
+        
         function viewReport(idx) {
             currentStudentIdx = idx;
             const s = students[idx];
@@ -711,11 +1105,51 @@
             document.getElementById('rep-name').innerText = s.name;
             document.getElementById('rep-id').innerText = s.id;
             
-            // Set Inputs
             document.getElementById('inp-att-present').value = s.attendance;
             document.getElementById('inp-bonus').value = s.bonusPoints > 0 ? s.bonusPoints : "";
 
+            if(currentMode === 'college') {
+                renderCollegeReport(s);
+            } else {
+                renderSHSReport(s);
+            }
+
             updateReportVisuals(s);
+        }
+
+        function renderCollegeReport(s) {
+            const summarySection = document.getElementById('reportGradeSummary');
+            summarySection.innerHTML = `
+                <div class="md:col-span-1 bg-gradient-to-br from-white to-blue-50 rounded-xl p-8 border-2 border-blue-200 text-center shadow-md flex flex-col justify-center items-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Final Grade</p>
+                    <div class="text-8xl font-black text-slate-800 mb-1 tracking-tighter" id="rep-grade">1.0</div>
+                    <div class="text-xl font-medium text-slate-500" id="rep-percent">98.5%</div>
+                    <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">Base-50 Scale</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col md:flex-row gap-6 bg-white p-6 rounded-xl shadow-sm border-2 border-slate-200">
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-slate-700 text-sm border-b border-slate-200 pb-3 mb-3 uppercase tracking-wide flex items-center gap-2">
+                            <i class="fas fa-list-ol text-blue-400"></i> Term Summary
+                        </h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
+                                <tr>
+                                    <th class="p-2 text-left rounded-l-md">Term</th>
+                                    <th class="p-2 text-center">LMS</th>
+                                    <th class="p-2 text-center">F2F (Lec/Lab)</th>
+                                    <th class="p-2 text-right rounded-r-md">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-term-rows" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                        </table>
+                    </div>
+                    <div class="w-full md:w-1/3 flex items-center justify-center h-48 relative border-l border-slate-200 pl-4">
+                        <canvas id="gradeChart"></canvas>
+                    </div>
+                </div>
+            `;
 
             document.getElementById('rep-term-rows').innerHTML = ['prelim','midterm','prefinal','final'].map(t => `
                 <tr class="border-b transition hover:bg-slate-50">
@@ -756,28 +1190,103 @@
             });
         }
 
-        // Live Bonus Calculation
+        function renderSHSReport(s) {
+            const summarySection = document.getElementById('reportGradeSummary');
+            summarySection.innerHTML = `
+                <div class="md:col-span-1 bg-gradient-to-br from-white to-emerald-50 rounded-xl p-8 border-2 border-emerald-200 text-center shadow-md flex flex-col justify-center items-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
+                    <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Semestral Grade</p>
+                    <div class="text-8xl font-black text-slate-800 mb-1 tracking-tighter" id="rep-grade">85</div>
+                    <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">1-100 Scale</div>
+                </div>
+
+                <div class="md:col-span-2 bg-white p-6 rounded-xl shadow-sm border-2 border-slate-200">
+                    <h4 class="font-bold text-slate-700 text-sm border-b border-slate-200 pb-3 mb-3 uppercase tracking-wide flex items-center gap-2">
+                        <i class="fas fa-list-ol text-emerald-400"></i> Quarter Summary
+                    </h4>
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
+                            <tr>
+                                <th class="p-2 text-left rounded-l-md">Quarter</th>
+                                <th class="p-2 text-center">Written</th>
+                                <th class="p-2 text-center">Performance</th>
+                                <th class="p-2 text-center">Assessment</th>
+                                <th class="p-2 text-right rounded-r-md">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rep-quarter-rows" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('rep-quarter-rows').innerHTML = ['q3','q4'].map(q => {
+                const qData = s.quarters[q];
+                return `
+                    <tr class="border-b transition hover:bg-slate-50">
+                        <td class="p-3 capitalize font-medium text-slate-700">${q === 'q3' ? 'Quarter 3' : 'Quarter 4'}</td>
+                        <td class="p-3 text-center text-slate-500">${qData.writtenGrade.toFixed(1)}</td>
+                        <td class="p-3 text-center text-slate-500">${qData.performanceGrade.toFixed(1)}</td>
+                        <td class="p-3 text-center text-slate-500">${qData.assessmentGrade.toFixed(1)}</td>
+                        <td class="p-3 text-right font-bold text-slate-900">${qData.final.toFixed(1)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('rep-details').innerHTML = s.history.map(h => `
+                <tr class="hover:bg-slate-50 border-b">
+                    <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
+                    <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                            h.category==='written'?'bg-blue-100 text-blue-700':
+                            h.category==='performance'?'bg-emerald-100 text-emerald-700':
+                            'bg-purple-100 text-purple-700'
+                        }">
+                            ${h.quarter.toUpperCase()} • ${h.category}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right font-mono text-slate-600">${h.score} / ${h.max}</td>
+                    <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
+                </tr>
+            `).join('');
+        }
+
         document.getElementById('inp-bonus').addEventListener('input', (e) => {
             if(currentStudentIdx === -1) return;
             let val = parseFloat(e.target.value) || 0;
             let s = students[currentStudentIdx];
             
             s.bonusPoints = val;
-            s.grandTotal = s.calculatedGrandTotal + val; // Add bonus to grand total
-            s.transmuted = transmute(s.grandTotal);
+            s.grandTotal = s.calculatedGrandTotal + val;
+            
+            if(currentMode === 'college') {
+                s.transmuted = transmute(s.grandTotal);
+            } else {
+                s.transmuted = s.grandTotal.toFixed(2);
+            }
             
             updateReportVisuals(s);
-            renderDashboard(); // Update background table
+            renderDashboard();
         });
 
         function updateReportVisuals(s) {
-            document.getElementById('rep-grade').innerText = s.transmuted;
-            document.getElementById('rep-percent').innerText = s.grandTotal.toFixed(2) + "%";
-            
-            // Color logic
             const gradeEl = document.getElementById('rep-grade');
-            if(s.grandTotal < 50) gradeEl.className = "text-8xl font-black text-red-600 mb-1 tracking-tighter";
-            else gradeEl.className = "text-8xl font-black text-emerald-600 mb-1 tracking-tighter";
+            gradeEl.innerText = s.transmuted;
+            
+            if(currentMode === 'college') {
+                document.getElementById('rep-percent').innerText = s.grandTotal.toFixed(2) + "%";
+                if(s.grandTotal < 50) {
+                    gradeEl.className = "text-8xl font-black text-red-600 mb-1 tracking-tighter";
+                } else {
+                    gradeEl.className = "text-8xl font-black text-emerald-600 mb-1 tracking-tighter";
+                }
+            } else {
+                if(s.grandTotal < 75) {
+                    gradeEl.className = "text-8xl font-black text-red-600 mb-1 tracking-tighter";
+                } else {
+                    gradeEl.className = "text-8xl font-black text-emerald-600 mb-1 tracking-tighter";
+                }
+            }
         }
 
         function closeModal() {
@@ -792,6 +1301,12 @@
                 row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
             });
         });
+
+        // Sorting
+        function sortTable(type) {
+            // Simple implementation - you can enhance this
+            alert('Sorting by ' + type);
+        }
     </script>
 </body>
 </html>
