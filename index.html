@@ -426,6 +426,7 @@
                                         <th class="p-3 border-b border-slate-200">Category</th>
                                         <th class="p-3 text-right border-b border-slate-200">Score / Max</th>
                                         <th class="p-3 text-right border-b border-slate-200">Weight</th>
+                                        <th class="p-3 text-center border-b border-slate-200" id="scale-header" style="display:none;">1-5 Scale</th>
                                     </tr>
                                 </thead>
                                 <tbody id="rep-details" class="divide-y divide-slate-100"></tbody>
@@ -993,6 +994,15 @@
         }
 
         // Letter grade and remark helper (Custom Scale)
+        function convertTo1to5Scale(percentage) {
+            // 1 = 100%, 5 = below 50%
+            // Linear scale from 1 to 5
+            if(percentage >= 100) return 1.0;
+            if(percentage <= 50) return 5.0;
+            // Linear interpolation: 1 + (4 * (100 - percentage) / 50)
+            return 1 + (4 * (100 - percentage) / 50);
+        }
+
         function gradeLetter(g) {
             const n = parseFloat(g) || 0;
             if(n >= 96) return { letter: 'A+', remark: 'Excellent', transmuted: '1' };
@@ -1238,7 +1248,8 @@
                                     <th class="p-2 text-left rounded-l-md">Term</th>
                                     <th class="p-2 text-center">LMS</th>
                                     <th class="p-2 text-center">F2F (Lec/Lab)</th>
-                                    <th class="p-2 text-right rounded-r-md">Total</th>
+                                    <th class="p-2 text-center">Total</th>
+                                    <th class="p-2 text-center rounded-r-md">1-5 Scale</th>
                                 </tr>
                             </thead>
                             <tbody id="rep-term-rows" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -1250,16 +1261,26 @@
                 </div>
             `;
 
-            document.getElementById('rep-term-rows').innerHTML = ['prelim','midterm','prefinal','final'].map(t => `
+            document.getElementById('rep-term-rows').innerHTML = ['prelim','midterm','prefinal','final'].map(t => {
+                const termScale = convertTo1to5Scale(s.terms[t].final);
+                return `
                 <tr class="border-b transition hover:bg-slate-50">
                     <td class="p-3 capitalize font-medium text-slate-700">${t}</td>
                     <td class="p-3 text-center text-slate-500">${s.terms[t].lmsFinal.toFixed(1)}</td>
                     <td class="p-3 text-center text-slate-500">${s.terms[t].f2fFinal.toFixed(1)} <span class="text-[10px] text-slate-400">(${s.terms[t].lecFinal.toFixed(0)}/${s.terms[t].labFinal.toFixed(0)})</span></td>
-                    <td class="p-3 text-right font-bold text-slate-900">${s.terms[t].final.toFixed(1)}</td>
+                    <td class="p-3 text-center font-bold text-slate-900">${s.terms[t].final.toFixed(1)}</td>
+                    <td class="p-3 text-center font-bold text-slate-700">${termScale.toFixed(1)}</td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
-            document.getElementById('rep-details').innerHTML = s.history.map(h => `
+            // Show 1-5 scale header for college mode
+            document.getElementById('scale-header').style.display = 'table-cell';
+            
+            document.getElementById('rep-details').innerHTML = s.history.map(h => {
+                const percentage = (h.score / h.max) * 100;
+                const scale1to5 = convertTo1to5Scale(percentage);
+                return `
                 <tr class="hover:bg-slate-50 border-b">
                     <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
                     <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
@@ -1270,8 +1291,10 @@
                     </td>
                     <td class="p-3 text-right font-mono text-slate-600">${h.score} / ${h.max}</td>
                     <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
+                    <td class="p-3 text-center font-bold text-slate-700">${scale1to5.toFixed(1)}</td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
             const ctx = document.getElementById('gradeChart').getContext('2d');
             if(chartInstance) chartInstance.destroy();
@@ -1336,6 +1359,9 @@
                     </tr>
                 `;
             }).join('');
+
+            // Hide 1-5 scale header for SHS mode
+            document.getElementById('scale-header').style.display = 'none';
 
             document.getElementById('rep-details').innerHTML = s.history.map(h => `
                 <tr class="hover:bg-slate-50 border-b">
@@ -1427,11 +1453,12 @@ if(currentMode === 'college') {
 
     ['prelim','midterm','prefinal','final'].forEach(t => {
         const tt = s.terms[t];
+        const termScale = convertTo1to5Scale(tt.final);
         lines.push(
           `${t.toUpperCase()} → LMS ${tt.lmsFinal.toFixed(1)}% | ` +
           `Lecture ${tt.lecFinal.toFixed(1)}% | ` +
           `Lab ${tt.labFinal.toFixed(1)}% | ` +
-          `TERM ${tt.final.toFixed(1)}%`
+          `TERM ${tt.final.toFixed(1)}% | 1-5 Scale: ${termScale.toFixed(1)}`
         );
     });
 
