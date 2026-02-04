@@ -1303,9 +1303,38 @@
         });
 
         // Sorting
+        let sortState = { key: null, asc: true };
         function sortTable(type) {
-            // Simple implementation - you can enhance this
-            alert('Sorting by ' + type);
+            if(!students || students.length === 0) return;
+
+            if(sortState.key === type) {
+                sortState.asc = !sortState.asc; // toggle
+            } else {
+                sortState.key = type;
+                // default: name ascending, grade descending
+                sortState.asc = type === 'name' ? true : false;
+            }
+
+            students.sort((a,b) => {
+                if(type === 'name') {
+                    const A = a.name.toLowerCase();
+                    const B = b.name.toLowerCase();
+                    if(A < B) return sortState.asc ? -1 : 1;
+                    if(A > B) return sortState.asc ? 1 : -1;
+                    return 0;
+                } else if(type === 'grade') {
+                    const A = parseFloat(a.grandTotal) || 0;
+                    const B = parseFloat(b.grandTotal) || 0;
+                    return sortState.asc ? A - B : B - A;
+                }
+                return 0;
+            });
+
+            renderDashboard();
+
+            // Optionally, scroll to top of table for visibility
+            const tableWrap = document.querySelector('.table-container');
+            if(tableWrap) tableWrap.scrollTop = 0;
         }
     </script>
 </body>
