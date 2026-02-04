@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -265,6 +266,27 @@
         </div>
 
         <div id="step-dashboard" class="hidden max-w-[98%] mx-auto space-y-6 fade-in pb-10">
+            <!-- Course Info Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-700 text-lg mb-4 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-500"></i> Course Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="text-xs uppercase font-bold text-slate-500 block mb-2">Subject</label>
+                        <input type="text" id="inp-subject" placeholder="e.g., Mathematics" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" oninput="courseInfo.subject = this.value">
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase font-bold text-slate-500 block mb-2">Section</label>
+                        <input type="text" id="inp-section" placeholder="e.g., A1 / Section 1" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" oninput="courseInfo.section = this.value">
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase font-bold text-slate-500 block mb-2">School Year</label>
+                        <input type="text" id="inp-schoolyear" placeholder="e.g., 2025-2026" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" oninput="courseInfo.schoolYear = this.value">
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition">
                     <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Class Average</div>
@@ -293,6 +315,12 @@
                         <button onclick="backToMapping()" class="text-xs font-bold text-slate-500 hover:text-blue-600 bg-white border border-slate-300 px-3 py-2 rounded hover:bg-blue-50 transition shadow-sm">
                             <i class="fas fa-pencil-alt mr-1"></i> Edit Mapping
                         </button>
+                        <button onclick="exportExcel()" class="text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-300 px-3 py-2 rounded hover:bg-slate-50 transition shadow-sm">
+                            <i class="fas fa-file-excel mr-1 text-emerald-600"></i> Export
+                        </button>
+                        <button onclick="printMaster()" class="text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-300 px-3 py-2 rounded hover:bg-slate-50 transition shadow-sm">
+                            <i class="fas fa-print mr-1"></i> Print
+                        </button>
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-2.5 text-slate-400"></i>
                             <input type="text" id="searchInput" placeholder="Search student name..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 shadow-sm bg-white transition focus:w-72">
@@ -304,6 +332,18 @@
                     <table class="w-full text-center text-xs border-collapse" id="masterTable">
                         <!-- Dynamic table based on mode -->
                     </table>
+                </div>
+                <div class="bg-white p-6 rounded-b-xl border-t border-slate-200 mt-4 print:visible invisible">
+                    <div class="flex justify-between items-center">
+                        <div class="w-1/3 text-center">
+                            <div class="border-t-2 border-slate-800 pt-2 text-xs font-bold uppercase text-slate-800">Bemmygail Abanilla</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Course Instructor</div>
+                        </div>
+                        <div class="w-1/3 text-center">
+                            <div class="border-t-2 border-slate-800 pt-2 text-xs font-bold uppercase text-slate-800">Academic Dean</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Verified By</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -326,6 +366,24 @@
 
             <div class="p-10 overflow-y-auto print:overflow-visible bg-slate-50 print:bg-white print:p-8">
                 
+                <!-- Course Info Section -->
+                <div class="flex justify-between items-center bg-blue-50 p-6 rounded-xl shadow-sm mb-6 border border-blue-200 break-inside-avoid">
+                    <div class="flex gap-6 items-center flex-1">
+                        <div>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Subject</p>
+                            <h3 class="text-xl font-bold text-slate-800" id="rep-subject">--</h3>
+                        </div>
+                        <div class="border-l border-slate-300 pl-6">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Section</p>
+                            <h3 class="text-xl font-bold text-slate-800" id="rep-section">--</h3>
+                        </div>
+                        <div class="border-l border-slate-300 pl-6">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">School Year</p>
+                            <h3 class="text-xl font-bold text-slate-800" id="rep-schoolyear">--</h3>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Student Info Section -->
                 <div class="flex justify-between items-end border-b-2 border-slate-300 pb-6 mb-6 bg-white p-6 rounded-xl shadow-sm break-inside-avoid">
                     <div class="flex gap-6 items-center">
@@ -453,6 +511,11 @@
         let students = [];
         let chartInstance = null;
         let currentStudentIdx = -1;
+        let courseInfo = {
+            subject: '',
+            section: '',
+            schoolYear: ''
+        };
 
         // ============================================
         // MODE SELECTION
@@ -922,6 +985,21 @@
             return (3.0 - ((g-50)/50)*2.0).toFixed(2);
         }
 
+        // Letter grade and remark helper (Custom Scale)
+        function gradeLetter(g) {
+            const n = parseFloat(g) || 0;
+            if(n >= 96) return { letter: 'A+', remark: 'Excellent', transmuted: '1' };
+            if(n >= 91) return { letter: 'A', remark: 'Very Good', transmuted: '1.25' };
+            if(n >= 86) return { letter: 'A-', remark: 'Very Good', transmuted: '1.5' };
+            if(n >= 81) return { letter: 'B+', remark: 'Good', transmuted: '1.75' };
+            if(n >= 75) return { letter: 'B', remark: 'Good', transmuted: '2' };
+            if(n >= 69) return { letter: 'B-', remark: 'Good', transmuted: '2.25' };
+            if(n >= 63) return { letter: 'C+', remark: 'Fair', transmuted: '2.5' };
+            if(n >= 57) return { letter: 'C', remark: 'Fair', transmuted: '2.75' };
+            if(n >= 50) return { letter: 'C-', remark: 'Fair', transmuted: '3' };
+            return { letter: 'F', remark: 'Failed', transmuted: '5' };
+        }
+
         // ============================================
         // RENDER DASHBOARD
         // ============================================
@@ -956,10 +1034,12 @@
                         <th colspan="4" class="p-1 border-r border-b bg-orange-50 text-orange-800 tracking-wider">Pre-Final (20%)</th>
                         <th colspan="4" class="p-1 border-r border-b bg-purple-50 text-purple-800 tracking-wider">Finals (40%)</th>
                         
-                        <th rowspan="2" class="p-3 border-l border-b bg-slate-800 text-white cursor-pointer hover:bg-slate-700 min-w-[80px]" onclick="sortTable('grade')">
-                            Final <i class="fas fa-sort ml-1 text-slate-400"></i>
-                        </th>
-                        <th rowspan="2" class="p-3 border-b min-w-[100px] bg-slate-100">Actions</th>
+                                <th rowspan="2" class="p-3 border-l border-b bg-slate-800 text-white cursor-pointer hover:bg-slate-700 min-w-[80px]" onclick="sortTable('grade')">
+                                    Final <i class="fas fa-sort ml-1 text-slate-400"></i>
+                                </th>
+                                <th rowspan="2" class="p-3 border-l border-b bg-slate-700 text-white min-w-[80px]">Letter</th>
+                                <th rowspan="2" class="p-3 border-b min-w-[140px] bg-slate-100">Remark</th>
+                                <th rowspan="2" class="p-3 border-b min-w-[100px] bg-slate-100">Actions</th>
                     </tr>
                     <tr class="text-[10px] tracking-tight font-semibold">
                         <th class="bg-blue-50 border-b text-slate-500 py-2 w-12">LMS</th>
@@ -1006,6 +1086,8 @@
                     <td class="p-3 text-xs border-r text-slate-500 bg-white font-mono">${s.id}</td>
                     ${termCols}
                     <td class="p-3 font-bold text-lg ${s.grandTotal < 50 ? 'text-red-600':'text-emerald-600'} border-l border-b bg-white">${s.transmuted}</td>
+                    <td class="p-3 text-center border-l bg-white font-bold">${gradeLetter(s.grandTotal).letter}</td>
+                    <td class="p-3 text-center bg-white">${gradeLetter(s.grandTotal).remark}</td>
                     <td class="p-3 text-right bg-white border-b">
                         <button onclick="viewReport(${i})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded mr-1 transition"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteRow(${i})" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded transition"><i class="fas fa-trash"></i></button>
@@ -1038,6 +1120,8 @@
                         <th rowspan="2" class="p-3 border-l border-b bg-slate-800 text-white cursor-pointer hover:bg-slate-700 min-w-[80px]" onclick="sortTable('grade')">
                             Semestral <i class="fas fa-sort ml-1 text-slate-400"></i>
                         </th>
+                        <th rowspan="2" class="p-3 border-l border-b bg-slate-700 text-white min-w-[80px]">Letter</th>
+                        <th rowspan="2" class="p-3 border-b min-w-[140px] bg-slate-100">Remark</th>
                         <th rowspan="2" class="p-3 border-b min-w-[100px] bg-slate-100">Actions</th>
                     </tr>
                     <tr class="text-[10px] tracking-tight font-semibold">
@@ -1072,6 +1156,8 @@
                     <td class="text-xs text-slate-400 py-2">${s.quarters.q4.assessmentGrade.toFixed(0)}</td>
                     <td class="text-xs font-bold text-slate-700 bg-slate-50 border-r py-2">${s.quarters.q4.final.toFixed(0)}</td>
                     <td class="p-3 font-bold text-lg ${s.grandTotal < 75 ? 'text-red-600':'text-emerald-600'} border-l border-b bg-white">${s.transmuted}</td>
+                    <td class="p-3 text-center border-l bg-white font-bold">${gradeLetter(s.grandTotal).letter}</td>
+                    <td class="p-3 text-center bg-white">${gradeLetter(s.grandTotal).remark}</td>
                     <td class="p-3 text-right bg-white border-b">
                         <button onclick="viewReport(${i})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded mr-1 transition"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteRow(${i})" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded transition"><i class="fas fa-trash"></i></button>
@@ -1118,14 +1204,20 @@
         }
 
         function renderCollegeReport(s) {
+            // Update course info
+            document.getElementById('rep-subject').innerText = courseInfo.subject || '--';
+            document.getElementById('rep-section').innerText = courseInfo.section || '--';
+            document.getElementById('rep-schoolyear').innerText = courseInfo.schoolYear || '--';
+
             const summarySection = document.getElementById('reportGradeSummary');
             summarySection.innerHTML = `
                 <div class="md:col-span-1 bg-gradient-to-br from-white to-blue-50 rounded-xl p-8 border-2 border-blue-200 text-center shadow-md flex flex-col justify-center items-center relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
                     <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Final Grade</p>
                     <div class="text-8xl font-black text-slate-800 mb-1 tracking-tighter" id="rep-grade">1.0</div>
-                    <div class="text-xl font-medium text-slate-500" id="rep-percent">98.5%</div>
-                    <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">Base-50 Scale</div>
+                        <div class="text-xl font-medium text-slate-500" id="rep-percent">98.5%</div>
+                        <div class="mt-2 text-sm" id="rep-letter">A • Excellent</div>
+                        <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">Base-50 Scale</div>
                 </div>
 
                 <div class="md:col-span-2 flex flex-col md:flex-row gap-6 bg-white p-6 rounded-xl shadow-sm border-2 border-slate-200">
@@ -1191,12 +1283,18 @@
         }
 
         function renderSHSReport(s) {
+            // Update course info
+            document.getElementById('rep-subject').innerText = courseInfo.subject || '--';
+            document.getElementById('rep-section').innerText = courseInfo.section || '--';
+            document.getElementById('rep-schoolyear').innerText = courseInfo.schoolYear || '--';
+
             const summarySection = document.getElementById('reportGradeSummary');
             summarySection.innerHTML = `
                 <div class="md:col-span-1 bg-gradient-to-br from-white to-emerald-50 rounded-xl p-8 border-2 border-emerald-200 text-center shadow-md flex flex-col justify-center items-center relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
                     <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Semestral Grade</p>
                     <div class="text-8xl font-black text-slate-800 mb-1 tracking-tighter" id="rep-grade">85</div>
+                    <div class="mt-2 text-sm" id="rep-letter">B • Very Good</div>
                     <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">1-100 Scale</div>
                 </div>
 
@@ -1287,6 +1385,12 @@
                     gradeEl.className = "text-8xl font-black text-emerald-600 mb-1 tracking-tighter";
                 }
             }
+            // update letter/remark if present
+            const repL = document.getElementById('rep-letter');
+            if(repL) {
+                const g = gradeLetter(s.grandTotal);
+                repL.innerText = `${g.letter} • ${g.remark}`;
+            }
         }
 
         function closeModal() {
@@ -1335,6 +1439,114 @@
             // Optionally, scroll to top of table for visibility
             const tableWrap = document.querySelector('.table-container');
             if(tableWrap) tableWrap.scrollTop = 0;
+        }
+
+        // Export master table to Excel
+        function exportExcel() {
+            if(!students || students.length === 0) return alert('No data to export');
+
+            const rows = students.map(s => {
+                if(currentMode === 'college') {
+                    return {
+                        Name: s.name,
+                        ID: s.id,
+                        Prelim: s.terms.prelim.final.toFixed(1),
+                        Midterm: s.terms.midterm.final.toFixed(1),
+                        PreFinal: s.terms.prefinal.final.toFixed(1),
+                        Finals: s.terms.final.final.toFixed(1),
+                        Percentage: s.grandTotal.toFixed(2),
+                        Transmuted: s.transmuted,
+                        Letter: gradeLetter(s.grandTotal).letter,
+                        Remark: gradeLetter(s.grandTotal).remark
+                    };
+                } else {
+                    return {
+                        Name: s.name,
+                        ID: s.id,
+                        Q3: s.quarters.q3.final.toFixed(1),
+                        Q4: s.quarters.q4.final.toFixed(1),
+                        Percentage: s.grandTotal.toFixed(2),
+                        Transmuted: s.transmuted,
+                        Letter: gradeLetter(s.grandTotal).letter,
+                        Remark: gradeLetter(s.grandTotal).remark
+                    };
+                }
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, 'Grades');
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentMode || 'grades'}_master.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        // Print master table as-is (open new window with table & signatures)
+        function printMaster() {
+            const table = document.getElementById('masterTable');
+            if(!table) return alert('No table to print');
+
+            const win = window.open('', '_blank', 'width=1400,height=900');
+            if(!win) return alert('Pop-up blocked. Allow popups to print.');
+
+            // Get table with headers
+            const tableHtml = table.outerHTML;
+            
+            // Get signature block
+            const sigBlock = document.querySelector('#step-dashboard .rounded-b-xl');
+            const sigHtml = sigBlock ? sigBlock.outerHTML : '';
+
+            // Build course info header
+            const courseHtml = `
+                <div style="margin-bottom: 25px; padding: 15px; background: #f0f9ff; border: 1px solid #e0f2fe; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                        <div>
+                            <div style="font-size: 11px; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Subject</div>
+                            <div style="font-size: 14px; font-weight: bold;">${courseInfo.subject || '--'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Section</div>
+                            <div style="font-size: 14px; font-weight: bold;">${courseInfo.section || '--'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">School Year</div>
+                            <div style="font-size: 14px; font-weight: bold;">${courseInfo.schoolYear || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const styles = `
+                <style>
+                    body { font-family: 'Inter', Arial, sans-serif; margin: 20px; background: white; }
+                    table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+                    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 12px; }
+                    th { background: #f3f4f6; font-weight: bold; }
+                    tr:nth-child(even) { background: #fafafa; }
+                    .sticky-left-1, .sticky-left-2 { text-align: left; }
+                    .rounded-b-xl { margin-top: 30px; padding: 30px 0; border-top: 2px solid #333; }
+                    .rounded-b-xl > div { display: flex; justify-content: space-between; }
+                    .rounded-b-xl > div > div { width: 30%; text-align: center; }
+                    .border-t-2 { border-top: 2px solid #333; padding-top: 15px; margin-bottom: 5px; font-weight: bold; font-size: 11px; }
+                    @media print { body { margin: 10px; } }
+                </style>
+            `;
+
+            win.document.open();
+            win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' + styles + '</head><body>');
+            win.document.write(courseHtml);
+            win.document.write(tableHtml);
+            win.document.write(sigHtml);
+            win.document.write('</body></html>');
+            win.document.close();
+            setTimeout(() => { win.focus(); win.print(); }, 600);
         }
     </script>
 </body>
