@@ -355,6 +355,9 @@
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print flex-shrink-0">
                 <h2 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-id-card text-blue-400"></i> Student Report Card</h2>
                 <div class="flex gap-3">
+                    <button onclick="emailStudent()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg mr-2">
+                        <i class="fas fa-envelope mr-2"></i> Email Student
+                    </button>
                     <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-blue-500/50">
                         <i class="fas fa-print mr-2"></i> Print Report
                     </button>
@@ -817,14 +820,16 @@
                 action: tr.querySelector('.map-action').value
             }));
 
-            const nameIdx = headers.findIndex(h => h.includes("Last Name"));
-            const firstIdx = headers.findIndex(h => h.includes("First Name"));
+            const nameIdx = headers.findIndex(h => h.toLowerCase().includes("last name"));
+            const firstIdx = headers.findIndex(h => h.toLowerCase().includes("first name"));
+            const emailIdx = headers.findIndex(h => h.toLowerCase().includes("email"));
             const idMap = mapping.find(m => m.action === 'id');
 
             students = rawData.map(row => {
                 let s = {
                     name: `${row[nameIdx]}, ${row[firstIdx]}`,
                     id: idMap ? row[idMap.idx] : "N/A",
+                    email: emailIdx !== -1 ? (row[emailIdx] || '') : '',
                     attendance: 0,
                     bonusPoints: 0,
                     terms: {},
@@ -910,14 +915,16 @@
                 action: tr.querySelector('.map-action').value
             }));
 
-            const nameIdx = headers.findIndex(h => h.includes("Last Name"));
-            const firstIdx = headers.findIndex(h => h.includes("First Name"));
+            const nameIdx = headers.findIndex(h => h.toLowerCase().includes("last name"));
+            const firstIdx = headers.findIndex(h => h.toLowerCase().includes("first name"));
+            const emailIdx = headers.findIndex(h => h.toLowerCase().includes("email"));
             const idMap = mapping.find(m => m.action === 'id');
 
             students = rawData.map(row => {
                 let s = {
                     name: `${row[nameIdx]}, ${row[firstIdx]}`,
                     id: idMap ? row[idMap.idx] : "N/A",
+                    email: emailIdx !== -1 ? (row[emailIdx] || '') : '',
                     attendance: 0,
                     bonusPoints: 0,
                     quarters: {
@@ -1391,6 +1398,100 @@
                 const g = gradeLetter(s.grandTotal);
                 repL.innerText = `${g.letter} • ${g.remark}`;
             }
+        }
+
+        // Email student using mailto: with plain-text report
+        function emailStudent() {
+            if(currentStudentIdx === -1) return alert('No student selected');
+            const s = students[currentStudentIdx];
+            if(!s) return alert('Student not found');
+            if(!s.email || s.email.trim() === '') return alert('No email found for this student');
+
+            const to = s.email.trim();
+            const subject = `${s.name} | ${courseInfo.subject || ''} | ${courseInfo.section || ''} | Grades Report`;
+
+const lines = [];
+
+lines.push("STUDENT GRADE REPORT");
+lines.push("====================================");
+lines.push(`Name: ${s.name}`);
+lines.push(`Student ID: ${s.id}`);
+lines.push(`Subject: ${courseInfo.subject || '--'}`);
+lines.push(`Section: ${courseInfo.section || '--'}`);
+lines.push(`School Year: ${courseInfo.schoolYear || '--'}`);
+lines.push("");
+
+if(currentMode === 'college') {
+    lines.push("TERM PERFORMANCE SUMMARY");
+    lines.push("------------------------------------");
+
+    ['prelim','midterm','prefinal','final'].forEach(t => {
+        const tt = s.terms[t];
+        lines.push(
+          `${t.toUpperCase()} → LMS ${tt.lmsFinal.toFixed(1)}% | ` +
+          `Lecture ${tt.lecFinal.toFixed(1)}% | ` +
+          `Lab ${tt.labFinal.toFixed(1)}% | ` +
+          `TERM ${tt.final.toFixed(1)}%`
+        );
+    });
+
+    lines.push("");
+    lines.push("OVERALL RESULT");
+    lines.push("------------------------------------");
+    lines.push(`Final Numeric Grade: ${s.grandTotal.toFixed(2)}%`);
+    lines.push(`Equivalent Grade: ${s.transmuted}`);
+    const gl = gradeLetter(s.grandTotal);
+    lines.push(`Remarks: ${gl.letter} - ${gl.remark}`);
+} else {
+    lines.push("QUARTER PERFORMANCE SUMMARY");
+    lines.push("------------------------------------");
+
+    ['q3','q4'].forEach(q => {
+        const qq = s.quarters[q];
+        lines.push(
+          `${q.toUpperCase()} → Written ${qq.writtenGrade.toFixed(1)}% | ` +
+          `Performance ${qq.performanceGrade.toFixed(1)}% | ` +
+          `Exam ${qq.assessmentGrade.toFixed(1)}% | ` +
+          `GRADE ${qq.final.toFixed(1)}%`
+        );
+    });
+
+    lines.push("");
+    lines.push("OVERALL RESULT");
+    lines.push("------------------------------------");
+    lines.push(`Final Numeric Grade: ${s.grandTotal.toFixed(2)}%`);
+    lines.push(`Equivalent Grade: ${s.transmuted}`);
+    const gl2 = gradeLetter(s.grandTotal);
+    lines.push(`Remarks: ${gl2.letter} - ${gl2.remark}`);
+}
+
+lines.push("");
+lines.push("CLASS RECORD");
+lines.push("------------------------------------");
+lines.push(`Attendance: ${s.attendance}`);
+if(s.bonusPoints && s.bonusPoints !== 0)
+    lines.push(`Bonus Points: ${s.bonusPoints}`);
+
+lines.push("");
+lines.push("DETAILED ACTIVITY BREAKDOWN");
+lines.push("------------------------------------");
+
+s.history.forEach(h => {
+    if(h) {
+        lines.push(
+          `${h.date || '-'} | ${h.name || '-'} | ${h.source || ''} ${h.cat || ''} ${h.type || ''} | ${h.score}/${h.max} (${h.weight}%)`
+        );
+    }
+});
+
+lines.push("");
+lines.push("This is a system-generated academic report.");
+lines.push("For questions regarding grading, please contact your instructor.");
+
+
+            const body = lines.join('\n');
+            const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailto, '_blank');
         }
 
         function closeModal() {
