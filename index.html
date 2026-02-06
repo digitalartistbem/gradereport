@@ -354,15 +354,36 @@
             
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print flex-shrink-0">
                 <h2 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-id-card text-blue-400"></i> Student Report Card</h2>
-                <div class="flex gap-3">
-                    <button onclick="emailStudent()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg mr-2">
-                        <i class="fas fa-envelope mr-2"></i> Email Student
+                <div class="flex gap-3 items-center">
+                    <div class="flex items-center gap-2 text-xs">
+                        <label class="text-[11px] text-slate-200" id="college-term-label">Term:</label>
+                        <select id="report-term-select" class="text-sm rounded px-2 py-1 bg-slate-800 text-white">
+                            <option value="all">All Terms</option>
+                            <option value="prelim">Prelim</option>
+                            <option value="midterm">Midterm</option>
+                            <option value="prefinal">PreFinal</option>
+                            <option value="final">Final</option>
+                        </select>
+                        <label class="text-[11px] text-slate-200" id="college-source-label">Source:</label>
+                        <select id="report-source-select" class="text-sm rounded px-2 py-1 bg-slate-800 text-white">
+                            <option value="both">F2F + LMS</option>
+                            <option value="f2f">F2F Only</option>
+                        </select>
+                        <label class="text-[11px] text-slate-200" id="shs-quarter-label" style="display:none;">Quarter:</label>
+                        <select id="report-quarter-select" class="text-sm rounded px-2 py-1 bg-slate-800 text-white" style="display:none;">
+                            <option value="all">All</option>
+                            <option value="q3">Q3</option>
+                            <option value="q4">Q4</option>
+                        </select>
+                    </div>
+                    <button onclick="emailStudentReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg mr-2">
+                        <i class="fas fa-envelope mr-2"></i> Email Report
                     </button>
-                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-blue-500/50">
+                    <button onclick="printStudentReport()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-blue-500/50">
                         <i class="fas fa-print mr-2"></i> Print Report
                     </button>
-                    <button onclick="copyEmailHTML()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-indigo-500/50">
-                        <i class="fas fa-copy mr-2"></i> Copy Email HTML
+                    <button onclick="copyStudentReportHTML()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-indigo-500/50">
+                        <i class="fas fa-copy mr-2"></i> Copy Report HTML
                     </button>
                     <button onclick="closeModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition">
                         <i class="fas fa-times mr-2"></i> Close
@@ -992,19 +1013,30 @@
         }
 
         function transmute(g) {
-            if(g >= 97) return "1.0";
-            if(g < 50) return "5.0";
-            return (3.0 - ((g-50)/50)*2.0).toFixed(2);
+            if(g >= 96) return "1.00";
+            if(g >= 91) return "1.25";
+            if(g >= 86) return "1.50";
+            if(g >= 81) return "1.75";
+            if(g >= 75) return "2.00";
+            if(g >= 69) return "2.25";
+            if(g >= 63) return "2.50";
+            if(g >= 57) return "2.75";
+            if(g >= 50) return "3.00";
+            return "5.00";
         }
 
         // Letter grade and remark helper (Custom Scale)
         function convertTo1to5Scale(percentage) {
-            // 1 = 100%, 5 = below 50%
-            // Linear scale from 1 to 5
-            if(percentage >= 100) return 1.0;
-            if(percentage <= 50) return 5.0;
-            // Linear interpolation: 1 + (4 * (100 - percentage) / 50)
-            return 1 + (4 * (100 - percentage) / 50);
+            if(percentage >= 96) return 1.0;
+            if(percentage >= 91) return 1.25;
+            if(percentage >= 86) return 1.5;
+            if(percentage >= 81) return 1.75;
+            if(percentage >= 75) return 2.0;
+            if(percentage >= 69) return 2.25;
+            if(percentage >= 63) return 2.5;
+            if(percentage >= 57) return 2.75;
+            if(percentage >= 50) return 3.0;
+            return 5.0;
         }
 
         function gradeLetter(g) {
@@ -1213,6 +1245,34 @@
 
             document.getElementById('rep-name').innerText = s.name;
             document.getElementById('rep-id').innerText = s.id;
+            // Set default report options
+            const termSel = document.getElementById('report-term-select');
+            const srcSel = document.getElementById('report-source-select');
+            const qSel = document.getElementById('report-quarter-select');
+            const termLabel = document.getElementById('college-term-label');
+            const srcLabel = document.getElementById('college-source-label');
+            const qLabel = document.getElementById('shs-quarter-label');
+            
+            if(termSel) termSel.value = 'prelim';
+            if(srcSel) srcSel.value = 'both';
+            if(qSel) qSel.value = 'all';
+
+            // Show/hide controls based on mode
+            if(currentMode === 'college') {
+                if(termLabel) termLabel.style.display = '';
+                if(termSel) termSel.style.display = '';
+                if(srcLabel) srcLabel.style.display = '';
+                if(srcSel) srcSel.style.display = '';
+                if(qLabel) qLabel.style.display = 'none';
+                if(qSel) qSel.style.display = 'none';
+            } else {
+                if(termLabel) termLabel.style.display = 'none';
+                if(termSel) termSel.style.display = 'none';
+                if(srcLabel) srcLabel.style.display = 'none';
+                if(srcSel) srcSel.style.display = 'none';
+                if(qLabel) qLabel.style.display = '';
+                if(qSel) qSel.style.display = '';
+            }
             
             document.getElementById('inp-att-present').value = s.attendance;
             document.getElementById('inp-bonus').value = s.bonusPoints > 0 ? s.bonusPoints : "";
@@ -1279,7 +1339,7 @@
                     <td class="p-3 text-center text-slate-500">${s.terms[t].lmsFinal.toFixed(1)}</td>
                     <td class="p-3 text-center text-slate-500">${s.terms[t].f2fFinal.toFixed(1)} <span class="text-[10px] text-slate-400">(${s.terms[t].lecFinal.toFixed(0)}/${s.terms[t].labFinal.toFixed(0)})</span></td>
                     <td class="p-3 text-center font-bold text-slate-900">${s.terms[t].final.toFixed(1)}</td>
-                    <td class="p-3 text-center font-bold text-slate-700">${termScale.toFixed(1)}</td>
+                    <td class="p-3 text-center font-bold text-slate-700">${termScale.toFixed(2)}</td>
                 </tr>
             `;
             }).join('');
@@ -1303,7 +1363,7 @@
                     </td>
                     <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
                     <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
-                    <td class="p-3 text-center font-bold text-slate-700">${scale1to5.toFixed(1)}</td>
+                    <td class="p-3 text-center font-bold text-slate-700">${scale1to5.toFixed(2)}</td>
                     <td class="p-3 text-center">
                         <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
                             onchange="updateActivityBonus(${currentStudentIdx}, ${idx}, this.value)" placeholder="0">
@@ -1424,6 +1484,95 @@
             renderDashboard();
         });
 
+        function recalculateStudentGrades(s) {
+            if (currentMode === 'college') {
+                // Reset terms
+                ['prelim','midterm','prefinal','final'].forEach(t => {
+                    s.terms[t] = { 
+                        lms: { s:0, m:0 }, 
+                        f2f: { lec:{quiz:{s:0,m:0}, exam:{s:0,m:0}, bonus:{s:0,m:0}}, lab:{quiz:{s:0,m:0}, exam:{s:0,m:0}, bonus:{s:0,m:0}} }
+                    };
+                });
+
+                // Re-aggregate from history
+                s.history.forEach(h => {
+                    const val = h.score + (h.bonus || 0);
+                    const t = s.terms[h.term];
+                    if (h.source === 'lms') {
+                        t.lms.s += val; t.lms.m += h.max;
+                    } else {
+                        if(t.f2f[h.cat] && t.f2f[h.cat][h.type]) {
+                            t.f2f[h.cat][h.type].s += val;
+                            t.f2f[h.cat][h.type].m += h.max;
+                        }
+                    }
+                });
+
+                // Recalculate Term Finals
+                ['prelim','midterm','prefinal','final'].forEach(tKey => {
+                    let t = s.terms[tKey];
+                    let lmsG = t.lms.m > 0 ? (t.lms.s / t.lms.m)*100 : 0;
+                    t.lmsFinal = lmsG;
+
+                    const calc = (b) => b.m > 0 ? (b.s / b.m)*100 : 0;
+                    
+                    let lecG = (calc(t.f2f.lec.quiz) * COLLEGE_WEIGHTS.lec.quiz) + (calc(t.f2f.lec.exam) * COLLEGE_WEIGHTS.lec.exam) + (calc(t.f2f.lec.bonus) * COLLEGE_WEIGHTS.lec.bonus);
+                    let labG = (calc(t.f2f.lab.quiz) * COLLEGE_WEIGHTS.lab.quiz) + (calc(t.f2f.lab.exam) * COLLEGE_WEIGHTS.lab.exam) + (calc(t.f2f.lab.bonus) * COLLEGE_WEIGHTS.lab.bonus);
+                    
+                    let f2fG = (lecG * COLLEGE_WEIGHTS.f2f.lec) + (labG * COLLEGE_WEIGHTS.f2f.lab);
+                    t.f2fFinal = f2fG;
+                    t.lecFinal = lecG;
+                    t.labFinal = labG;
+
+                    t.final = (lmsG * COLLEGE_WEIGHTS.term.lms) + (f2fG * COLLEGE_WEIGHTS.term.f2f);
+                });
+
+                // Grand Total
+                s.calculatedGrandTotal = (s.terms.prelim.final * COLLEGE_WEIGHTS.grand.prelim) + 
+                               (s.terms.midterm.final * COLLEGE_WEIGHTS.grand.midterm) + 
+                               (s.terms.prefinal.final * COLLEGE_WEIGHTS.grand.prefinal) + 
+                               (s.terms.final.final * COLLEGE_WEIGHTS.grand.final);
+                
+                s.grandTotal = s.calculatedGrandTotal + (s.bonusPoints || 0);
+                s.transmuted = transmute(s.grandTotal);
+
+            } else {
+                // SHS Logic
+                s.quarters = {
+                    q3: { written: {s:0, m:0}, performance: {s:0, m:0}, assessment: {s:0, m:0} },
+                    q4: { written: {s:0, m:0}, performance: {s:0, m:0}, assessment: {s:0, m:0} }
+                };
+
+                s.history.forEach(h => {
+                    const val = h.score + (h.bonus || 0);
+                    let q = s.quarters[h.quarter];
+                    if(q && q[h.category]) {
+                        q[h.category].s += val;
+                        q[h.category].m += h.max;
+                    }
+                });
+
+                ['q3', 'q4'].forEach(qKey => {
+                    let q = s.quarters[qKey];
+                    const calc = (cat) => cat.m > 0 ? (cat.s / cat.m) * 100 : 0;
+                    
+                    q.writtenGrade = calc(q.written);
+                    q.performanceGrade = calc(q.performance);
+                    q.assessmentGrade = calc(q.assessment);
+                    
+                    q.final = (q.writtenGrade * SHS_WEIGHTS.quarter.written) + 
+                              (q.performanceGrade * SHS_WEIGHTS.quarter.performance) + 
+                              (q.assessmentGrade * SHS_WEIGHTS.quarter.assessment);
+                });
+
+                s.calculatedGrandTotal = (s.quarters.q3.final * SHS_WEIGHTS.semester.q3) + 
+                                        (s.quarters.q4.final * SHS_WEIGHTS.semester.q4);
+                
+                s.grandTotal = s.calculatedGrandTotal + (s.bonusPoints || 0);
+                s.transmuted = s.grandTotal.toFixed(2);
+            }
+        }
+
         function updateActivityBonus(studentIdx, historyIdx, bonusValue) {
             if(studentIdx === -1 || !students[studentIdx]) return;
             
@@ -1435,59 +1584,15 @@
                 s.history[historyIdx].bonus = bonus;
             }
             
-            // Re-render only the activity log table to show updated scores with bonuses
+            recalculateStudentGrades(s);
+
             if(currentMode === 'college') {
-                document.getElementById('rep-details').innerHTML = s.history.map((h, idx) => {
-                    const bonusPoints = h.bonus || 0;
-                    const totalScore = h.score + bonusPoints;
-                    const percentage = (totalScore / h.max) * 100;
-                    const scale1to5 = convertTo1to5Scale(percentage);
-                    return `
-                    <tr class="hover:bg-slate-50 border-b">
-                        <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
-                        <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${h.source==='lms'?'bg-blue-100 text-blue-700':'bg-emerald-100 text-emerald-700'}">
-                                ${h.source} • ${h.cat} • ${h.type}
-                            </span>
-                        </td>
-                        <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
-                        <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
-                        <td class="p-3 text-center font-bold text-slate-700">${scale1to5.toFixed(1)}</td>
-                        <td class="p-3 text-center">
-                            <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
-                                onchange="updateActivityBonus(${studentIdx}, ${idx}, this.value)" placeholder="0">
-                        </td>
-                    </tr>
-                `;
-                }).join('');
+                renderCollegeReport(s);
             } else {
-                document.getElementById('rep-details').innerHTML = s.history.map((h, idx) => {
-                    const bonusPoints = h.bonus || 0;
-                    const totalScore = h.score + bonusPoints;
-                    return `
-                    <tr class="hover:bg-slate-50 border-b">
-                        <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
-                        <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                                h.category==='written'?'bg-blue-100 text-blue-700':
-                                h.category==='performance'?'bg-emerald-100 text-emerald-700':
-                                'bg-purple-100 text-purple-700'
-                            }">
-                                ${h.quarter.toUpperCase()} • ${h.category}
-                            </span>
-                        </td>
-                        <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
-                        <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
-                        <td class="p-3 text-center">
-                            <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
-                                onchange="updateActivityBonus(${studentIdx}, ${idx}, this.value)" placeholder="0">
-                        </td>
-                    </tr>
-                `;
-                }).join('');
+                renderSHSReport(s);
             }
+            updateReportVisuals(s);
+            renderDashboard();
         }
 
         function updateReportVisuals(s) {
@@ -1759,6 +1864,8 @@ lines.push("For questions regarding grading, please contact your instructor.");
                             <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Activity</th>
                             <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Category</th>
                             <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Score</th>
+                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Bonus</th>
+                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Bonus</th>
                             <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
                         </tr>
                     </thead>
@@ -1817,6 +1924,740 @@ lines.push("For questions regarding grading, please contact your instructor.");
 </body>
 </html>
             `;
+        }
+
+        // ------------------------------
+        // Report generators (term/quarter + source filters)
+        // ------------------------------
+
+        function getReportOptions() {
+            const term = document.getElementById('report-term-select')?.value || 'all';
+            const source = document.getElementById('report-source-select')?.value || 'both';
+            const quarter = document.getElementById('report-quarter-select')?.value || 'all';
+            return { term, source, quarter };
+        }
+
+        function filterHistoryByOptions(history, opts, mode) {
+            if(!history) return [];
+            if(mode === 'college') {
+                if(opts.term === 'all') {
+                    return history.filter(h => opts.source === 'both' ? true : (h.source !== 'lms'));
+                }
+                return history.filter(h => h.term === opts.term && (opts.source === 'both' ? true : (h.source !== 'lms')));
+            } else {
+                // SHS: filter by quarter
+                if(opts.quarter === 'all') return history;
+                return history.filter(h => h.quarter === opts.quarter);
+            }
+        }
+
+        function generateReportText(s, opts) {
+            const lines = [];
+            lines.push('STUDENT GRADE REPORT');
+            lines.push('====================================');
+            lines.push(`Name: ${s.name}`);
+            lines.push(`Student ID: ${s.id}`);
+            lines.push(`Subject: ${courseInfo.subject || '--'}`);
+            lines.push(`Section: ${courseInfo.section || '--'}`);
+            lines.push(`School Year: ${courseInfo.schoolYear || '--'}`);
+            lines.push('');
+
+            if(currentMode === 'college') {
+                if(opts.term !== 'all') {
+                    const t = s.terms[opts.term];
+                    if(t) {
+                        lines.push(`${opts.term.toUpperCase()} PERFORMANCE`);
+                        lines.push('------------------------------------');
+                        if(opts.source === 'both') {
+                            lines.push(`LMS ${t.lmsFinal.toFixed(1)}% | Lecture ${t.lecFinal.toFixed(1)}% | Lab ${t.labFinal.toFixed(1)}% | TERM ${t.final.toFixed(1)}% | 1-5: ${convertTo1to5Scale(t.final).toFixed(2)}`);
+                        } else {
+                            // F2F only: use f2fFinal and components
+                            lines.push(`Lecture ${t.lecFinal.toFixed(1)}% | Lab ${t.labFinal.toFixed(1)}% | F2F ${t.f2fFinal.toFixed(1)}% | 1-5: ${convertTo1to5Scale(t.f2fFinal).toFixed(2)}`);
+                        }
+                    }
+                } else {
+                    lines.push('TERM PERFORMANCE SUMMARY');
+                    lines.push('------------------------------------');
+                    ['prelim','midterm','prefinal','final'].forEach(tKey => {
+                        const tt = s.terms[tKey];
+                        lines.push(`${tKey.toUpperCase()} → LMS ${tt.lmsFinal.toFixed(1)}% | Lecture ${tt.lecFinal.toFixed(1)}% | Lab ${tt.labFinal.toFixed(1)}% | TERM ${tt.final.toFixed(1)}% | 1-5: ${convertTo1to5Scale(tt.final).toFixed(2)}`);
+                    });
+                }
+            } else {
+                if(opts.quarter !== 'all') {
+                    const qq = s.quarters[opts.quarter];
+                    if(qq) {
+                        lines.push(`${opts.quarter.toUpperCase()} PERFORMANCE`);
+                        lines.push('------------------------------------');
+                        lines.push(`Written ${qq.writtenGrade.toFixed(1)}% | Performance ${qq.performanceGrade.toFixed(1)}% | Assessment ${qq.assessmentGrade.toFixed(1)}% | Grade ${qq.final.toFixed(1)}%`);
+                    }
+                } else {
+                    lines.push('QUARTER PERFORMANCE SUMMARY');
+                    lines.push('------------------------------------');
+                    ['q3','q4'].forEach(q => {
+                        const qq = s.quarters[q];
+                        lines.push(`${q.toUpperCase()} → Written ${qq.writtenGrade.toFixed(1)}% | Performance ${qq.performanceGrade.toFixed(1)}% | Assessment ${qq.assessmentGrade.toFixed(1)}% | GRADE ${qq.final.toFixed(1)}%`);
+                    });
+                }
+            }
+
+            lines.push('');
+            lines.push('CLASS RECORD');
+            lines.push('------------------------------------');
+            lines.push(`Attendance: ${document.getElementById('inp-att-present').value || s.attendance}`);
+
+            // bonus within the filtered history
+            const hist = filterHistoryByOptions(s.history || [], opts, currentMode);
+            const totalBonus = hist.reduce((sum,h)=>sum+(h.bonus||0),0);
+            if(totalBonus > 0) lines.push(`Bonus Points (in report scope): ${totalBonus.toFixed(2)}`);
+
+            lines.push('');
+            lines.push('DETAILED ACTIVITY BREAKDOWN');
+            lines.push('------------------------------------');
+            hist.forEach(h => {
+                if(h) {
+                    const bonus = h.bonus || 0;
+                    const totalScore = h.score + bonus;
+                    lines.push(`${h.date || '-'} | ${h.name || '-'} | ${h.source || ''} ${h.cat || ''} ${h.type || ''} | ${totalScore}/${h.max} (${bonus > 0 ? '+' + bonus.toFixed(2) : 'no bonus'}) (${h.weight}%)`);
+                }
+            });
+
+            lines.push('');
+            lines.push('Instructor Remarks:');
+            lines.push(document.getElementById('inp-comment').value || '');
+            lines.push('');
+            lines.push('This is a system-generated academic report.');
+            return lines.join('\n');
+        }
+
+        function generateReportHTML(s, opts) {
+            const attendance = document.getElementById('inp-att-present').value || s.attendance;
+            const comment = document.getElementById('inp-comment').value || '';
+            const mainBonus = parseFloat(document.getElementById('inp-bonus').value) || s.bonusPoints || 0;
+            
+            let reportHTML = '';
+            
+            if(currentMode === 'college') {
+                // COLLEGE MODE
+                if(opts.term === 'all') {
+                    // ALL TERMS - Show full summary
+                    reportHTML = generateCollegeFullReport(s, attendance, mainBonus, comment);
+                } else {
+                    // SINGLE TERM - Show detailed activity log for that term
+                    reportHTML = generateCollegeSingleTermReport(s, opts, attendance, mainBonus, comment);
+                }
+            } else {
+                // SHS MODE
+                if(opts.quarter === 'all') {
+                    reportHTML = generateSHSFullReport(s, attendance, mainBonus, comment);
+                } else {
+                    reportHTML = generateSHSSingleQuarterReport(s, opts, attendance, mainBonus, comment);
+                }
+            }
+            
+            return reportHTML;
+        }
+
+        function generateCollegeFullReport(s, attendance, mainBonus, comment) {
+            const gl = gradeLetter(s.grandTotal);
+            const termRows = ['prelim','midterm','prefinal','final'].map((t, idx) => {
+                const term = s.terms[t];
+                const termScale = convertTo1to5Scale(term.final);
+                const colors = ['#f0fdf4', '#f0f9ff', '#fef3c7', '#fce7f3'];
+                const colorBorders = ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899'];
+                return `
+                    <tr style="background: ${colors[idx]}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 10px; font-weight: 600; color: #1f2937; border-left: 4px solid ${colorBorders[idx]};">${t.toUpperCase()}</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.lmsFinal.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.lecFinal.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.labFinal.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.f2fFinal.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; font-weight: 700; color: #1f2937;">${term.final.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; font-weight: 700; color: ${term.final >= 75 ? '#059669' : '#dc2626'};">${termScale.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Report - ${s.name}</title>
+    <style>
+        @media print { 
+            @page { margin: 0.5in; size: auto; } 
+            body { margin: 0; padding: 0; background: white; }
+            html { background: white; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
+        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    </div>
+
+    <!-- COURSE & STUDENT INFO -->
+    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
+        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+            <tr>
+                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Report Type:</strong> Comprehensive Summary</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- FINAL GRADE CARD -->
+    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Final Grade</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 75 ? '#059669' : '#dc2626'};">
+                    ${s.transmuted}
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
+                    ${gl.letter} • ${gl.remark}
+                </p>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
+                <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Percentage</p>
+                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #1e40af;">${s.grandTotal.toFixed(2)}%</p>
+                <p style="margin: 8px 0 0 0; font-size: 10px; color: #1e40af;">Out of 100</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
+        <div>
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days present</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
+                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+            </p>
+        </div>
+    </div>
+
+    <!-- TERM BREAKDOWN TABLE -->
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Term Performance Breakdown</h3>
+        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                        <th style="padding: 10px 10px; text-align: left; color: #4b5563; font-weight: 600;">Term</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">LMS</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Lecture</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Lab</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">F2F</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Grade</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">1-5 Scale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${termRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- REMARKS -->
+    ${comment ? `
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7; margin: 0;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Instructor Remarks</h3>
+        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    </div>
+    ` : ''}
+
+    <!-- FOOTER -->
+    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
+        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
+        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    </div>
+
+</div>
+
+</body>
+</html>
+            `;
+        }
+
+        function generateCollegeSingleTermReport(s, opts, attendance, mainBonus, comment) {
+            const hist = filterHistoryByOptions(s.history || [], opts, 'college');
+            const term = s.terms[opts.term];
+            
+            const activitiesRows = hist.map((h, idx) => {
+                const bonus = h.bonus||0;
+                const total = h.score + bonus;
+                const bgColor = idx % 2 === 0 ? 'white' : '#f9fafb';
+                return `
+                    <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 10px 8px; font-size: 12px; color: #4b5563;">${h.date||'-'}</td>
+                        <td style="padding: 10px 8px; color: #1f2937; font-weight: 500; font-size: 12px;">${h.name||''}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; color: #4b5563;">${h.source||''} ${h.cat||''} ${h.type||''}</td>
+                        <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace; font-size: 12px;">${total}/${h.max}</td>
+                        <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace; font-size: 12px;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
+                        <td style="padding: 10px 8px; text-align: center; color: #4b5563; font-size: 12px;">${h.weight}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const isF2FOnly = opts.source === 'f2f';
+            const displayGrade = isF2FOnly ? term.f2fFinal : term.final;
+            const termScale = convertTo1to5Scale(displayGrade);
+
+            return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Report - ${s.name}</title>
+    <style>
+        @media print { 
+            @page { margin: 0.5in; size: auto; } 
+            body { margin: 0; padding: 0; background: white; }
+            html { background: white; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
+        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    </div>
+
+    <!-- COURSE & STUDENT INFO -->
+    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
+        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+            <tr>
+                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Term:</strong> ${opts.term.toUpperCase()} (${isF2FOnly ? 'F2F Only' : 'F2F+LMS'})</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- TERM GRADE CARD -->
+    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Term Grade</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <div style="font-size: 48px; font-weight: 900; color: #1e40af;">
+                    ${termScale.toFixed(2)}
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
+                    Percentage: ${displayGrade.toFixed(1)}%
+                </p>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
+                <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Breakdown</p>
+                ${!isF2FOnly ? `<p style="margin: 3px 0; font-size: 12px; color: #1e40af;">LMS: ${term.lmsFinal.toFixed(1)}%</p>` : ''}
+                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Lecture: ${term.lecFinal.toFixed(1)}%</p>
+                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Lab: ${term.labFinal.toFixed(1)}%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
+        <div>
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
+                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+            </p>
+        </div>
+    </div>
+
+    <!-- ACTIVITY LOG TABLE -->
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Detailed Activity Log</h3>
+        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Date</th>
+                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Activity</th>
+                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Category</th>
+                        <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600;">Score</th>
+                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Bonus</th>
+                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${activitiesRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- REMARKS -->
+    ${comment ? `
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Remarks</h3>
+        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    </div>
+    ` : ''}
+
+    <!-- FOOTER -->
+    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
+        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
+        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    </div>
+
+</div>
+
+</body>
+</html>
+            `;
+        }
+
+        function generateSHSFullReport(s, attendance, mainBonus, comment) {
+            const gl = gradeLetter(s.grandTotal);
+            const quarterRows = ['q3','q4'].map((q, idx) => {
+                const qq = s.quarters[q];
+                const colors = ['#fef3c7', '#fce7f3'];
+                const colorBorders = ['#f59e0b', '#ec4899'];
+                return `
+                    <tr style="background: ${colors[idx]}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 10px; font-weight: 600; color: #1f2937; border-left: 4px solid ${colorBorders[idx]};">${q === 'q3' ? 'QUARTER 3' : 'QUARTER 4'}</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${qq.writtenGrade.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${qq.performanceGrade.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${qq.assessmentGrade.toFixed(1)}%</td>
+                        <td style="padding: 12px 10px; text-align: center; font-weight: 700; color: ${qq.final >= 75 ? '#059669' : '#dc2626'};">${qq.final.toFixed(1)}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Report - ${s.name}</title>
+    <style>
+        @media print { 
+            @page { margin: 0.5in; size: auto; } 
+            body { margin: 0; padding: 0; background: white; }
+            html { background: white; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
+        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    </div>
+
+    <!-- COURSE & STUDENT INFO -->
+    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
+        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+            <tr>
+                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Level:</strong> Senior High School</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- FINAL GRADE CARD -->
+    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Final Grade</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 75 ? '#059669' : '#dc2626'};">
+                    ${s.transmuted}
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
+                    ${gl.letter} • ${gl.remark}
+                </p>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
+                <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Percentage</p>
+                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #1e40af;">${s.grandTotal.toFixed(2)}%</p>
+                <p style="margin: 8px 0 0 0; font-size: 10px; color: #1e40af;">Out of 100</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
+        <div>
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days present</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
+                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+            </p>
+        </div>
+    </div>
+
+    <!-- QUARTER BREAKDOWN TABLE -->
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Quarter Performance Breakdown</h3>
+        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                        <th style="padding: 10px 10px; text-align: left; color: #4b5563; font-weight: 600;">Quarter</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Written</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Performance</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Assessment</th>
+                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${quarterRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- REMARKS -->
+    ${comment ? `
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Remarks</h3>
+        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    </div>
+    ` : ''}
+
+    <!-- FOOTER -->
+    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
+        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
+        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    </div>
+
+</div>
+
+</body>
+</html>
+            `;
+        }
+
+        function generateSHSSingleQuarterReport(s, opts, attendance, mainBonus, comment) {
+            const hist = filterHistoryByOptions(s.history || [], opts, 'shs');
+            const quarterKey = opts.quarter; // 'q3' or 'q4'
+            const qq = s.quarters[quarterKey];
+            
+            const activitiesRows = hist.map((h, idx) => {
+                const bonus = h.bonus||0;
+                const total = h.score + bonus;
+                const bgColor = idx % 2 === 0 ? 'white' : '#f9fafb';
+                return `
+                    <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 10px 8px; font-size: 12px; color: #4b5563;">${h.date||'-'}</td>
+                        <td style="padding: 10px 8px; color: #1f2937; font-weight: 500; font-size: 12px;">${h.name||''}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; color: #4b5563;">${h.type||''}</td>
+                        <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace; font-size: 12px;">${total}/${h.max}</td>
+                        <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace; font-size: 12px;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
+                        <td style="padding: 10px 8px; text-align: center; color: #4b5563; font-size: 12px;">${h.weight}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Report - ${s.name}</title>
+    <style>
+        @media print { 
+            @page { margin: 0.5in; size: auto; } 
+            body { margin: 0; padding: 0; background: white; }
+            html { background: white; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
+        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    </div>
+
+    <!-- COURSE & STUDENT INFO -->
+    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
+        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+            <tr>
+                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Quarter:</strong> ${quarterKey === 'q3' ? 'QUARTER 3' : 'QUARTER 4'}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- QUARTER GRADE CARD -->
+    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Quarter Grade</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <div style="font-size: 48px; font-weight: 900; color: #1e40af;">
+                    ${qq.final.toFixed(1)}%
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
+                    ${qq.final >= 75 ? 'PASSED' : 'NEEDS IMPROVEMENT'}
+                </p>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
+                <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Breakdown</p>
+                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Written: ${qq.writtenGrade.toFixed(1)}%</p>
+                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Performance: ${qq.performanceGrade.toFixed(1)}%</p>
+                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Assessment: ${qq.assessmentGrade.toFixed(1)}%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
+        <div>
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
+                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+            </p>
+        </div>
+    </div>
+
+    <!-- ACTIVITY LOG TABLE -->
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
+        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Detailed Activity Log</h3>
+        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Date</th>
+                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Activity</th>
+                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Type</th>
+                        <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600;">Score</th>
+                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Bonus</th>
+                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${activitiesRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- REMARKS -->
+    ${comment ? `
+    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Remarks</h3>
+        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    </div>
+    ` : ''}
+
+    <!-- FOOTER -->
+    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
+        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
+        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    </div>
+
+</div>
+
+</body>
+</html>
+            `;
+        }
+
+        function emailStudentReport() {
+            if(currentStudentIdx === -1) return alert('No student selected');
+            const s = students[currentStudentIdx];
+            if(!s || !s.email) return alert('Student or email missing');
+            const opts = getReportOptions();
+            const body = generateReportText(s, opts);
+            const subject = `${s.name} | ${courseInfo.subject || ''} | ${courseInfo.section || ''} | Report`;
+            const mailto = `mailto:${s.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailto,'_blank');
+        }
+
+        function printStudentReport() {
+            if(currentStudentIdx === -1) return alert('No student selected');
+            const s = students[currentStudentIdx];
+            if(!s) return alert('Student not found');
+            const opts = getReportOptions();
+            const html = generateReportHTML(s, opts);
+            const w = window.open('', '_blank');
+            w.document.write(html);
+            w.document.close();
+            w.focus();
+            setTimeout(()=>w.print(), 300);
+        }
+
+        function copyStudentReportHTML() {
+            if(currentStudentIdx === -1) return alert('No student selected');
+            const s = students[currentStudentIdx];
+            if(!s) return alert('Student not found');
+            const opts = getReportOptions();
+            const html = generateReportHTML(s, opts);
+            navigator.clipboard.writeText(html).then(()=>alert('Report HTML copied to clipboard!'))
+            .catch(err=>alert('Copy failed: '+err));
         }
 
         function generateSHSEmailHTML(s) {
