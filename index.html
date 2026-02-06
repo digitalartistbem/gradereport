@@ -379,6 +379,10 @@
                             <option value="q4">Q4</option>
                         </select>
                     </div>
+                    <div class="flex bg-slate-800 rounded border border-slate-700 mr-2">
+                        <button onclick="navigateReport(-1)" class="px-3 py-2 hover:bg-slate-700 text-slate-300 hover:text-white transition border-r border-slate-700" title="Previous Student"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="navigateReport(1)" class="px-3 py-2 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Next Student"><i class="fas fa-chevron-right"></i></button>
+                    </div>
                     <button onclick="emailStudentReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg mr-2">
                         <i class="fas fa-envelope mr-2"></i> Email Report
                     </button>
@@ -1292,6 +1296,13 @@
         function closeModal() {
         document.getElementById('modalContainer').classList.add('hidden');
         }  
+
+        function navigateReport(step) {
+            const newIdx = currentStudentIdx + step;
+            if(newIdx >= 0 && newIdx < students.length) {
+                viewReport(newIdx);
+            }
+        }
 
         function renderCollegeReport(s) {
             // Update course info
