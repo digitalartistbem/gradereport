@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bemmygail - Grading System</title>
     
@@ -429,6 +430,7 @@
                                         <th class="p-3 text-right border-b border-slate-200">Score / Max</th>
                                         <th class="p-3 text-right border-b border-slate-200">Weight</th>
                                         <th class="p-3 text-center border-b border-slate-200" id="scale-header" style="display:none;">1-5 Scale</th>
+                                        <th class="p-3 text-center border-b border-slate-200">Bonus</th>
                                     </tr>
                                 </thead>
                                 <tbody id="rep-details" class="divide-y divide-slate-100"></tbody>
@@ -1285,8 +1287,10 @@
             // Show 1-5 scale header for college mode
             document.getElementById('scale-header').style.display = 'table-cell';
             
-            document.getElementById('rep-details').innerHTML = s.history.map(h => {
-                const percentage = (h.score / h.max) * 100;
+            document.getElementById('rep-details').innerHTML = s.history.map((h, idx) => {
+                const bonusPoints = h.bonus || 0;
+                const totalScore = h.score + bonusPoints;
+                const percentage = (totalScore / h.max) * 100;
                 const scale1to5 = convertTo1to5Scale(percentage);
                 return `
                 <tr class="hover:bg-slate-50 border-b">
@@ -1297,9 +1301,13 @@
                             ${h.source} • ${h.cat} • ${h.type}
                         </span>
                     </td>
-                    <td class="p-3 text-right font-mono text-slate-600">${h.score} / ${h.max}</td>
+                    <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
                     <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
                     <td class="p-3 text-center font-bold text-slate-700">${scale1to5.toFixed(1)}</td>
+                    <td class="p-3 text-center">
+                        <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
+                            onchange="updateActivityBonus(${currentStudentIdx}, ${idx}, this.value)" placeholder="0">
+                    </td>
                 </tr>
             `;
             }).join('');
@@ -1371,7 +1379,10 @@
             // Hide 1-5 scale header for SHS mode
             document.getElementById('scale-header').style.display = 'none';
 
-            document.getElementById('rep-details').innerHTML = s.history.map(h => `
+            document.getElementById('rep-details').innerHTML = s.history.map((h, idx) => {
+                const bonusPoints = h.bonus || 0;
+                const totalScore = h.score + bonusPoints;
+                return `
                 <tr class="hover:bg-slate-50 border-b">
                     <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
                     <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
@@ -1384,10 +1395,15 @@
                             ${h.quarter.toUpperCase()} • ${h.category}
                         </span>
                     </td>
-                    <td class="p-3 text-right font-mono text-slate-600">${h.score} / ${h.max}</td>
+                    <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
                     <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
+                    <td class="p-3 text-center">
+                        <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
+                            onchange="updateActivityBonus(${currentStudentIdx}, ${idx}, this.value)" placeholder="0">
+                    </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         document.getElementById('inp-bonus').addEventListener('input', (e) => {
@@ -1407,6 +1423,72 @@
             updateReportVisuals(s);
             renderDashboard();
         });
+
+        function updateActivityBonus(studentIdx, historyIdx, bonusValue) {
+            if(studentIdx === -1 || !students[studentIdx]) return;
+            
+            let s = students[studentIdx];
+            let bonus = parseFloat(bonusValue) || 0;
+            
+            // Set the bonus on the history item to display with the activity score
+            if(s.history[historyIdx]) {
+                s.history[historyIdx].bonus = bonus;
+            }
+            
+            // Re-render only the activity log table to show updated scores with bonuses
+            if(currentMode === 'college') {
+                document.getElementById('rep-details').innerHTML = s.history.map((h, idx) => {
+                    const bonusPoints = h.bonus || 0;
+                    const totalScore = h.score + bonusPoints;
+                    const percentage = (totalScore / h.max) * 100;
+                    const scale1to5 = convertTo1to5Scale(percentage);
+                    return `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
+                        <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${h.source==='lms'?'bg-blue-100 text-blue-700':'bg-emerald-100 text-emerald-700'}">
+                                ${h.source} • ${h.cat} • ${h.type}
+                            </span>
+                        </td>
+                        <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
+                        <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
+                        <td class="p-3 text-center font-bold text-slate-700">${scale1to5.toFixed(1)}</td>
+                        <td class="p-3 text-center">
+                            <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
+                                onchange="updateActivityBonus(${studentIdx}, ${idx}, this.value)" placeholder="0">
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            } else {
+                document.getElementById('rep-details').innerHTML = s.history.map((h, idx) => {
+                    const bonusPoints = h.bonus || 0;
+                    const totalScore = h.score + bonusPoints;
+                    return `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-3 text-slate-500 text-[11px]">${h.date}</td>
+                        <td class="p-3 font-medium text-slate-700 truncate max-w-[200px]" title="${h.name}">${h.name}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                                h.category==='written'?'bg-blue-100 text-blue-700':
+                                h.category==='performance'?'bg-emerald-100 text-emerald-700':
+                                'bg-purple-100 text-purple-700'
+                            }">
+                                ${h.quarter.toUpperCase()} • ${h.category}
+                            </span>
+                        </td>
+                        <td class="p-3 text-right font-mono text-slate-600">${totalScore} / ${h.max}</td>
+                        <td class="p-3 text-right text-xs text-slate-400">${h.weight}%</td>
+                        <td class="p-3 text-center">
+                            <input type="number" step="0.01" value="${bonusPoints}" class="w-16 px-2 py-1 border border-emerald-300 rounded text-xs text-center font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-emerald-50" 
+                                onchange="updateActivityBonus(${studentIdx}, ${idx}, this.value)" placeholder="0">
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            }
+        }
 
         function updateReportVisuals(s) {
             const gradeEl = document.getElementById('rep-grade');
@@ -1513,8 +1595,10 @@ lines.push("------------------------------------");
 
 s.history.forEach(h => {
     if(h) {
+        const bonus = h.bonus || 0;
+        const totalScore = h.score + bonus;
         lines.push(
-          `${h.date || '-'} | ${h.name || '-'} | ${h.source || ''} ${h.cat || ''} ${h.type || ''} | ${h.score}/${h.max} (${h.weight}%)`
+          `${h.date || '-'} | ${h.name || '-'} | ${h.source || ''} ${h.cat || ''} ${h.type || ''} | ${totalScore}/${h.max} (${bonus > 0 ? '+' + bonus.toFixed(2) : 'no bonus'}) (${h.weight}%)`
         );
     }
 });
@@ -1679,7 +1763,10 @@ lines.push("For questions regarding grading, please contact your instructor.");
                         </tr>
                     </thead>
                     <tbody>
-                        ${s.history.map((h, idx) => `
+                        ${s.history.map((h, idx) => {
+                            const bonus = h.bonus || 0;
+                            const totalScore = h.score + bonus;
+                            return `
                         <tr style="border-bottom: 1px solid #e5e7eb; background: ${idx % 2 === 0 ? 'white' : '#fafafa'};">
                             <td style="padding: 10px 8px; color: #4b5563;">${h.date || '-'}</td>
                             <td style="padding: 10px 8px; color: #1f2937; font-weight: 500; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${h.name}">${h.name}</td>
@@ -1688,10 +1775,12 @@ lines.push("For questions regarding grading, please contact your instructor.");
                                     ${h.source.toUpperCase()} ${h.cat || ''} ${h.type || ''}
                                 </span>
                             </td>
-                            <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace;">${h.score}/${h.max}</td>
+                            <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace;">${totalScore}/${h.max}</td>
+                            <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
                             <td style="padding: 10px 8px; text-align: center; color: #4b5563;">${h.weight}%</td>
                         </tr>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -1852,11 +1941,14 @@ lines.push("For questions regarding grading, please contact your instructor.");
                             <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Activity</th>
                             <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Category</th>
                             <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Score</th>
+                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Bonus</th>
                             <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${s.history.map((h, idx) => {
+                            const bonus = h.bonus || 0;
+                            const totalScore = h.score + bonus;
                             const catColor = h.category === 'written' ? '#dbeafe' : 
                                            h.category === 'performance' ? '#d1fae5' : '#e9d5ff';
                             const catColorText = h.category === 'written' ? '#1e40af' : 
@@ -1870,7 +1962,8 @@ lines.push("For questions regarding grading, please contact your instructor.");
                                     ${h.category}
                                 </span>
                             </td>
-                            <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace;">${h.score}/${h.max}</td>
+                            <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace;">${totalScore}/${h.max}</td>
+                            <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
                             <td style="padding: 10px 8px; text-align: center; color: #4b5563;">${h.weight}%</td>
                         </tr>
                             `;
