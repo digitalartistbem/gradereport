@@ -167,9 +167,12 @@
                     <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">LMS Grading & Reporting System</p>
                 </div>
             </div>
-            <button onclick="window.location.reload()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-md text-sm transition shadow-sm border border-slate-700">
-                <i class="fas fa-power-off mr-2"></i> Reset System
-            </button>
+            <div class="flex items-center gap-2">
+                <input type="file" id="importFile" class="hidden" accept=".json" onchange="importSystemData(this)">
+                <button onclick="triggerImport()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition shadow-sm border border-slate-700"><i class="fas fa-file-import mr-2"></i> Import</button>
+                <button onclick="exportSystemData()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition shadow-sm border border-slate-700"><i class="fas fa-file-export mr-2"></i> Export</button>
+                <button onclick="window.location.reload()" class="bg-red-900/30 hover:bg-red-900/50 text-red-200 hover:text-white px-3 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition shadow-sm border border-red-900/50"><i class="fas fa-power-off mr-2"></i> Reset</button>
+            </div>
         </div>
     </header>
 
@@ -2996,6 +2999,104 @@ lines.push("For questions regarding grading, please contact your instructor.");
             win.document.write('</body></html>');
             win.document.close();
             setTimeout(() => { win.focus(); win.print(); }, 600);
+        }
+
+        // ============================================
+        // DATA EXPORT / IMPORT
+        // ============================================
+
+        function exportSystemData() {
+            if (!currentMode || students.length === 0) return alert("No active session data to export.");
+            
+            const data = {
+                version: 1.0,
+                timestamp: new Date().toISOString(),
+                currentMode,
+                courseInfo,
+                students,
+                mapping,
+                headers,
+                headerDates,
+                maxPoints,
+                rawData
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bemmygail_grades_${currentMode}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function triggerImport() {
+            document.getElementById('importFile').click();
+        }
+
+        function importSystemData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.currentMode) throw new Error("Invalid backup file format.");
+                    
+                    currentMode = data.currentMode;
+                    courseInfo = data.courseInfo || {};
+                    students = data.students || [];
+                    mapping = data.mapping || [];
+                    headers = data.headers || [];
+                    headerDates = data.headerDates || {};
+                    maxPoints = data.maxPoints || {};
+                    rawData = data.rawData || [];
+
+                    // Restore UI
+                    document.getElementById('step-mode-select').classList.add('hidden');
+                    document.getElementById('step-upload').classList.add('hidden');
+                    document.getElementById('step-mapping').classList.add('hidden');
+                    document.getElementById('step-dashboard').classList.remove('hidden');
+
+                    // Restore Inputs
+                    document.getElementById('inp-subject').value = courseInfo.subject || '';
+                    document.getElementById('inp-section').value = courseInfo.section || '';
+                    document.getElementById('inp-schoolyear').value = courseInfo.schoolYear || '';
+
+                    // Rebuild mapping table in background (so "Edit Mapping" works)
+                    buildMappingTable();
+                    // Apply saved mapping selections to the DOM
+                    const rows = document.querySelectorAll('#mappingBody tr');
+                    rows.forEach(tr => {
+                        const idx = parseInt(tr.dataset.idx);
+                        const saved = mapping.find(m => m.idx === idx);
+                        if(saved) {
+                            const set = (sel, val) => { const el = tr.querySelector(sel); if(el) el.value = val; };
+                            set('.map-action', saved.action);
+                            if(currentMode === 'college') {
+                                set('.map-term', saved.term);
+                                set('.map-source', saved.source);
+                                set('.map-cat', saved.cat);
+                                set('.map-type', saved.type);
+                            } else {
+                                set('.map-quarter', saved.quarter);
+                                set('.map-category', saved.category);
+                            }
+                            uiUpdate(tr.querySelector('.map-action'));
+                        }
+                    });
+
+                    renderDashboard();
+                    alert("System data imported successfully!");
+                } catch (err) {
+                    alert("Import failed: " + err.message);
+                }
+                input.value = '';
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>
