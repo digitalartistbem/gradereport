@@ -356,47 +356,53 @@
     <div id="modalContainer" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
             
-            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print flex-shrink-0">
-                <h2 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-id-card text-blue-400"></i> Student Report Card</h2>
-                <div class="flex gap-3 items-center">
-                    <div class="flex items-center gap-2 text-xs">
-                        <label class="text-[11px] text-slate-200" id="college-term-label">Term:</label>
-                        <select id="report-term-select" class="text-sm rounded px-2 py-1 bg-slate-800 text-white">
+            <div class="bg-slate-900 text-white px-5 py-4 flex flex-col gap-4 no-print flex-shrink-0">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                    <h2 class="font-bold text-xl flex items-center gap-2 tracking-wide"><i class="fas fa-id-card text-blue-400"></i> Student Report Card</h2>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-white transition p-1"><i class="fas fa-times text-lg"></i></button>
+                </div>
+                
+                <div class="flex flex-col xl:flex-row gap-4 justify-between items-center">
+                    <div class="flex flex-wrap gap-3 items-center justify-center xl:justify-start w-full xl:w-auto">
+                        <div class="flex items-center gap-2 bg-slate-800 rounded-lg p-1.5 border border-slate-700">
+                            <label class="text-[11px] text-slate-300 font-bold px-1" id="college-term-label">TERM</label>
+                            <select id="report-term-select" class="text-xs rounded px-2 py-1.5 bg-slate-700 text-white border-none focus:ring-1 focus:ring-blue-500">
                             <option value="all">All Terms</option>
                             <option value="prelim">Prelim</option>
                             <option value="midterm">Midterm</option>
                             <option value="prefinal">PreFinal</option>
                             <option value="final">Final</option>
                         </select>
-                        <label class="text-[11px] text-slate-200" id="college-source-label">Source:</label>
-                        <select id="report-source-select" class="text-sm rounded px-2 py-1 bg-slate-800 text-white">
+                            <label class="text-[11px] text-slate-300 font-bold px-1 border-l border-slate-600 pl-2" id="college-source-label">SOURCE</label>
+                            <select id="report-source-select" class="text-xs rounded px-2 py-1.5 bg-slate-700 text-white border-none focus:ring-1 focus:ring-blue-500">
                             <option value="both">F2F + LMS</option>
                             <option value="f2f">F2F Only</option>
                         </select>
-                        <label class="text-[11px] text-slate-200" id="shs-quarter-label" style="display:none;">Quarter:</label>
-                        <select id="report-quarter-select" class="text-sm rounded px-2 py-1 bg-slate-800 text-white" style="display:none;">
+                            <label class="text-[11px] text-slate-300 font-bold px-1" id="shs-quarter-label" style="display:none;">QUARTER</label>
+                            <select id="report-quarter-select" class="text-xs rounded px-2 py-1.5 bg-slate-700 text-white border-none focus:ring-1 focus:ring-blue-500" style="display:none;">
                             <option value="all">All</option>
                             <option value="q3">Q3</option>
                             <option value="q4">Q4</option>
                         </select>
                     </div>
-                    <div class="flex bg-slate-800 rounded border border-slate-700 mr-2">
-                        <button onclick="navigateReport(-1)" class="px-3 py-2 hover:bg-slate-700 text-slate-300 hover:text-white transition border-r border-slate-700" title="Previous Student"><i class="fas fa-chevron-left"></i></button>
-                        <button onclick="navigateReport(1)" class="px-3 py-2 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Next Student"><i class="fas fa-chevron-right"></i></button>
+                        <div class="flex bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                            <button onclick="navigateReport(-1)" class="px-3 py-1.5 hover:bg-slate-700 text-slate-300 hover:text-white transition border-r border-slate-700" title="Previous Student"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="navigateReport(1)" class="px-3 py-1.5 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Next Student"><i class="fas fa-chevron-right"></i></button>
+                        </div>
                     </div>
-                    <button onclick="emailStudentReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg mr-2">
-                        <i class="fas fa-envelope mr-2"></i> Email Report
+
+                    <div class="flex flex-wrap gap-2 justify-center xl:justify-end w-full xl:w-auto">
+                        <button onclick="emailStudentReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-xs uppercase font-bold tracking-wide transition shadow-lg flex items-center gap-2">
+                            <i class="fas fa-envelope"></i> Email
                     </button>
-                    <button onclick="printStudentReport()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-blue-500/50">
-                        <i class="fas fa-print mr-2"></i> Print Report
+                        <button onclick="printStudentReport()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-blue-500/50 flex items-center gap-2">
+                            <i class="fas fa-print"></i> Print
                     </button>
-                    <button onclick="copyStudentReportHTML()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-indigo-500/50">
-                        <i class="fas fa-copy mr-2"></i> Copy Report HTML
-                    </button>
-                    <button onclick="closeModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-xs uppercase font-bold tracking-wide transition">
-                        <i class="fas fa-times mr-2"></i> Close
+                        <button onclick="copyStudentReportHTML()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-xs uppercase font-bold tracking-wide transition shadow-lg hover:shadow-indigo-500/50 flex items-center gap-2">
+                            <i class="fas fa-code"></i> Copy HTML
                     </button>
                 </div>
+            </div>
             </div>
 
             <div class="p-10 overflow-y-auto print:overflow-visible bg-slate-50 print:bg-white print:p-8">
@@ -427,7 +433,7 @@
                         </div>
                         <div>
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Student Name</p>
-                            <h1 class="text-4xl font-bold text-slate-800 tracking-tight" id="rep-name">Last, First</h1>
+                            <h1 class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight" id="rep-name">Last, First</h1>
                         </div>
                     </div>
                     <div class="text-right">
@@ -435,6 +441,29 @@
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Student ID</p>
                             <h3 class="text-2xl font-mono font-bold text-slate-700" id="rep-id">--</h3>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Permit Toggles (College Only) -->
+                <div id="permit-controls" class="hidden mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200 break-inside-avoid">
+                    <h5 class="text-xs font-bold uppercase text-yellow-700 mb-2 flex items-center gap-2"><i class="fas fa-file-signature"></i> Exam Permits</h5>
+                    <div class="flex gap-4 flex-wrap">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="perm-prelim" onchange="togglePermit('prelim', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-slate-700 font-medium">Prelim</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="perm-midterm" onchange="togglePermit('midterm', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-slate-700 font-medium">Midterm</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="perm-prefinal" onchange="togglePermit('prefinal', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-slate-700 font-medium">Pre-Final</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="perm-final" onchange="togglePermit('final', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-slate-700 font-medium">Final</span>
+                        </label>
                     </div>
                 </div>
 
@@ -867,6 +896,7 @@
                     attendance: 0,
                     bonusPoints: 0,
                     terms: {},
+                    permits: { prelim: true, midterm: true, prefinal: true, final: true },
                     calculatedGrandTotal: 0,
                     grandTotal: 0,
                     history: []
@@ -1249,6 +1279,9 @@
         function viewReport(idx) {
             currentStudentIdx = idx;
             const s = students[idx];
+            // Safety check: Ensure permits object exists (for old data)
+            if(!s.permits) s.permits = { prelim: true, midterm: true, prefinal: true, final: true };
+
             document.getElementById('modalContainer').classList.remove('hidden');
 
             document.getElementById('rep-name').innerText = s.name;
@@ -1261,6 +1294,15 @@
             const srcLabel = document.getElementById('college-source-label');
             const qLabel = document.getElementById('shs-quarter-label');
             
+            if(currentMode === 'college') {
+                document.getElementById('permit-controls').classList.remove('hidden');
+                ['prelim','midterm','prefinal','final'].forEach(t => {
+                    document.getElementById('perm-'+t).checked = s.permits[t];
+                });
+            } else {
+                document.getElementById('permit-controls').classList.add('hidden');
+            }
+
             if(termSel) termSel.value = 'prelim';
             if(srcSel) srcSel.value = 'both';
             if(qSel) qSel.value = 'all';
@@ -1305,20 +1347,49 @@
             }
         }
 
+        function togglePermit(term, checked) {
+            if(currentStudentIdx === -1) return;
+            students[currentStudentIdx].permits[term] = checked;
+            renderCollegeReport(students[currentStudentIdx]);
+        }
+
+        function calculateCollegeRunningGrade(s) {
+            const weights = { prelim: 0.2, midterm: 0.2, prefinal: 0.2, final: 0.4 };
+            let totalWeightedScore = 0;
+            let totalWeightUsed = 0;
+            
+            ['prelim', 'midterm', 'prefinal', 'final'].forEach(t => {
+                if (s.permits[t]) {
+                    totalWeightedScore += s.terms[t].final * weights[t];
+                    totalWeightUsed += weights[t];
+                }
+            });
+            
+            if (totalWeightUsed === 0) return 0;
+            
+            let grade = totalWeightedScore / totalWeightUsed;
+            grade += (s.bonusPoints || 0);
+            return grade;
+        }
+
         function renderCollegeReport(s) {
             // Update course info
             document.getElementById('rep-subject').innerText = courseInfo.subject || '--';
             document.getElementById('rep-section').innerText = courseInfo.section || '--';
             document.getElementById('rep-schoolyear').innerText = courseInfo.schoolYear || '--';
 
+            const dynamicGrade = calculateCollegeRunningGrade(s);
+            const transmuted = transmute(dynamicGrade);
+            const gl = gradeLetter(dynamicGrade);
+
             const summarySection = document.getElementById('reportGradeSummary');
             summarySection.innerHTML = `
                 <div class="md:col-span-1 bg-gradient-to-br from-white to-blue-50 rounded-xl p-8 border-2 border-blue-200 text-center shadow-md flex flex-col justify-center items-center relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
                     <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Final Grade</p>
-                    <div class="text-8xl font-black text-slate-800 mb-1 tracking-tighter" id="rep-grade">1.0</div>
-                        <div class="text-xl font-medium text-slate-500" id="rep-percent">98.5%</div>
-                        <div class="mt-2 text-sm" id="rep-letter">A • Excellent</div>
+                    <div class="text-8xl font-black ${dynamicGrade < 50 ? 'text-red-600' : 'text-slate-800'} mb-1 tracking-tighter" id="rep-grade">${transmuted}</div>
+                        <div class="text-xl font-medium text-slate-500" id="rep-percent">${dynamicGrade.toFixed(2)}%</div>
+                        <div class="mt-2 text-sm" id="rep-letter">${gl.letter} • ${gl.remark}</div>
                         <div class="mt-6 text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">Base-50 Scale</div>
                 </div>
 
@@ -1348,13 +1419,14 @@
 
             document.getElementById('rep-term-rows').innerHTML = ['prelim','midterm','prefinal','final'].map(t => {
                 const termScale = convertTo1to5Scale(s.terms[t].final);
+                const hasPermit = s.permits[t];
                 return `
                 <tr class="border-b transition hover:bg-slate-50">
                     <td class="p-3 capitalize font-medium text-slate-700">${t}</td>
-                    <td class="p-3 text-center text-slate-500">${s.terms[t].lmsFinal.toFixed(1)}</td>
-                    <td class="p-3 text-center text-slate-500">${s.terms[t].f2fFinal.toFixed(1)} <span class="text-[10px] text-slate-400">(${s.terms[t].lecFinal.toFixed(0)}/${s.terms[t].labFinal.toFixed(0)})</span></td>
-                    <td class="p-3 text-center font-bold text-slate-900">${s.terms[t].final.toFixed(1)}</td>
-                    <td class="p-3 text-center font-bold text-slate-700">${termScale.toFixed(2)}</td>
+                    <td class="p-3 text-center text-slate-500">${hasPermit ? s.terms[t].lmsFinal.toFixed(1) : '-'}</td>
+                    <td class="p-3 text-center text-slate-500">${hasPermit ? s.terms[t].f2fFinal.toFixed(1) + ' <span class="text-[10px] text-slate-400">(' + s.terms[t].lecFinal.toFixed(0) + '/' + s.terms[t].labFinal.toFixed(0) + ')</span>' : '-'}</td>
+                    <td class="p-3 text-center font-bold text-slate-900">${hasPermit ? s.terms[t].final.toFixed(1) : '<span class="text-red-500 text-xs uppercase">No Permit</span>'}</td>
+                    <td class="p-3 text-center font-bold text-slate-700">${hasPermit ? termScale.toFixed(2) : '-'}</td>
                 </tr>
             `;
             }).join('');
@@ -1612,27 +1684,33 @@
 
         function updateReportVisuals(s) {
             const gradeEl = document.getElementById('rep-grade');
-            gradeEl.innerText = s.transmuted;
             
             if(currentMode === 'college') {
-                document.getElementById('rep-percent').innerText = s.grandTotal.toFixed(2) + "%";
-                if(s.grandTotal < 50) {
-                    gradeEl.className = "text-8xl font-black text-red-600 mb-1 tracking-tighter";
-                } else {
-                    gradeEl.className = "text-8xl font-black text-emerald-600 mb-1 tracking-tighter";
+                const dynamicGrade = calculateCollegeRunningGrade(s);
+                const transmuted = transmute(dynamicGrade);
+                const gl = gradeLetter(dynamicGrade);
+                
+                if(gradeEl) {
+                    gradeEl.innerText = transmuted;
+                    gradeEl.className = `text-8xl font-black ${dynamicGrade < 50 ? 'text-red-600' : 'text-emerald-600'} mb-1 tracking-tighter`;
                 }
+                const repP = document.getElementById('rep-percent');
+                if(repP) repP.innerText = dynamicGrade.toFixed(2) + "%";
+                
+                const repL = document.getElementById('rep-letter');
+                if(repL) repL.innerText = `${gl.letter} • ${gl.remark}`;
             } else {
+                gradeEl.innerText = s.transmuted;
                 if(s.grandTotal < 75) {
                     gradeEl.className = "text-8xl font-black text-red-600 mb-1 tracking-tighter";
                 } else {
                     gradeEl.className = "text-8xl font-black text-emerald-600 mb-1 tracking-tighter";
                 }
-            }
-            // update letter/remark if present
-            const repL = document.getElementById('rep-letter');
-            if(repL) {
-                const g = gradeLetter(s.grandTotal);
-                repL.innerText = `${g.letter} • ${g.remark}`;
+                const repL = document.getElementById('rep-letter');
+                if(repL) {
+                    const g = gradeLetter(s.grandTotal);
+                    repL.innerText = `${g.letter} • ${g.remark}`;
+                }
             }
         }
 
@@ -1755,7 +1833,9 @@ lines.push("For questions regarding grading, please contact your instructor.");
         }
 
         function generateCollegeEmailHTML(s) {
-            const gl = gradeLetter(s.grandTotal);
+            const dynamicGrade = calculateCollegeRunningGrade(s);
+            const transmuted = transmute(dynamicGrade);
+            const gl = gradeLetter(dynamicGrade);
             const comment = document.getElementById('inp-comment').value || '';
             const attendance = document.getElementById('inp-att-present').value || s.attendance;
             const bonus = parseFloat(document.getElementById('inp-bonus').value) || s.bonusPoints || 0;
@@ -1767,173 +1847,171 @@ lines.push("For questions regarding grading, please contact your instructor.");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Report - ${s.name}</title>
+    <!--[if mso]>
+    <style>
+      table {border-collapse: collapse;}
+      td,th {padding: 0;}
+    </style>
+    <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6;">
 
-<div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 30px 20px; min-height: 100vh;">
-    <div style="max-width: 700px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
+<div style="background-color: #f3f4f6; padding: 20px;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 650px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
         
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px 20px; text-align: center;">
-            <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
-            <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px;">GRADING & REPORTING SYSTEM</p>
-        </div>
+        <tr>
+            <td style="background-color: #1f2937; padding: 30px 20px; text-align: center; color: #ffffff;">
+                <h1 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 700; font-family: 'Segoe UI', sans-serif;">Bemmygail Learning Hub</h1>
+                <p style="margin: 0; font-size: 11px; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase;">Grading & Reporting System</p>
+            </td>
+        </tr>
 
         <!-- Course Info -->
-        <div style="background: #f0f9ff; border-bottom: 2px solid #e0f2fe; padding: 20px; margin: 0;">
-            <table style="width: 100%; font-size: 13px; color: #475569;">
-                <tr>
-                    <td style="padding: 8px 0;"><strong style="color: #1e40af;">Subject:</strong> ${courseInfo.subject || '--'}</td>
-                    <td style="padding: 8px 0; text-align: right;"><strong style="color: #1e40af;">Section:</strong> ${courseInfo.section || '--'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0;"><strong style="color: #1e40af;">School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
-                    <td style="padding: 8px 0; text-align: right;"><strong style="color: #1e40af;">Date:</strong> ${new Date().toLocaleDateString()}</td>
-                </tr>
-            </table>
-        </div>
+        <tr>
+            <td style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 20px;">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #334155;">
+                    <tr>
+                        <td style="padding-bottom: 5px;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
+                        <td style="text-align: right; padding-bottom: 5px;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
+                        <td style="text-align: right;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
 
         <!-- Student Greeting -->
-        <div style="padding: 30px 20px; border-bottom: 1px solid #e5e7eb;">
-            <p style="margin: 0 0 15px 0; font-size: 16px; color: #1f2937;">
-                <strong>Dear ${s.name},</strong>
-            </p>
-            <p style="margin: 0; font-size: 14px; color: #4b5563; line-height: 1.6;">
-                Please find below your detailed grade report for ${courseInfo.subject || 'the course'}. This report includes your term performance, final grade, and a complete breakdown of all activities and assessments.
-            </p>
-        </div>
+        <tr>
+            <td style="padding: 25px 20px; border-bottom: 1px solid #e5e7eb;">
+                <p style="margin: 0 0 10px 0; font-size: 16px; color: #1f2937; font-family: 'Segoe UI', sans-serif;"><strong>Dear ${s.name},</strong></p>
+                <p style="margin: 0; font-size: 14px; color: #4b5563; line-height: 1.5;">Please find below your detailed grade report. This includes your term performance and activity breakdown.</p>
+            </td>
+        </tr>
 
         <!-- Final Grade Summary Card -->
-        <div style="padding: 25px 20px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-bottom: 2px solid #3b82f6; text-align: center;">
-            <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Final Grade</p>
-            <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 50 ? '#059669' : '#dc2626'}; margin: 0 0 10px 0;">
-                ${s.transmuted}
-            </div>
-            <p style="margin: 0 0 5px 0; font-size: 14px; color: #1f2937;">
-                <strong>${gl.letter}</strong> • ${gl.remark}
-            </p>
-            <p style="margin: 0; font-size: 12px; color: #4b5563;">
-                ${s.grandTotal.toFixed(2)}% Grade
-            </p>
-        </div>
+        <tr>
+            <td style="background-color: #eff6ff; padding: 25px 20px; text-align: center; border-bottom: 2px solid #3b82f6;">
+                <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Final Grade</p>
+                <div style="font-size: 42px; font-weight: 900; color: ${dynamicGrade >= 50 ? '#059669' : '#dc2626'}; margin-bottom: 5px; line-height: 1;">${transmuted}</div>
+                <p style="margin: 0 0 5px 0; font-size: 14px; color: #1e3a8a;"><strong>${gl.letter}</strong> • ${gl.remark}</p>
+                <p style="margin: 0; font-size: 12px; color: #64748b;">${dynamicGrade.toFixed(2)}%</p>
+            </td>
+        </tr>
 
         <!-- Term Summary Table -->
-        <div style="padding: 25px 20px; border-bottom: 1px solid #e5e7eb;">
-            <h3 style="margin: 0 0 15px 0; font-size: 15px; color: #1f2937; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Term Performance Breakdown</h3>
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                <thead>
-                    <tr style="background: #f3f4f6;">
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Term</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-bottom: 2px solid #e5e7eb;">LMS</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Lecture</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Lab</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Total</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-bottom: 2px solid #e5e7eb;">1-5 Scale</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${['prelim', 'midterm', 'prefinal', 'final'].map((term, idx) => {
+        <tr>
+            <td style="padding: 20px;">
+                <h3 style="margin: 0 0 15px 0; font-size: 14px; color: #334155; font-weight: 700; text-transform: uppercase;">Term Summary</h3>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="font-size: 12px; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9;">
+                            <th style="padding: 10px 5px; text-align: left; color: #475569; border-bottom: 2px solid #e2e8f0;">Term</th>
+                            <th style="padding: 10px 5px; text-align: center; color: #475569; border-bottom: 2px solid #e2e8f0;">LMS</th>
+                            <th style="padding: 10px 5px; text-align: center; color: #475569; border-bottom: 2px solid #e2e8f0;">F2F</th>
+                            <th style="padding: 10px 5px; text-align: center; color: #475569; border-bottom: 2px solid #e2e8f0;">Total</th>
+                            <th style="padding: 10px 5px; text-align: center; color: #475569; border-bottom: 2px solid #e2e8f0;">Scale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${['prelim', 'midterm', 'prefinal', 'final'].map((term, idx) => {
                         const t = s.terms[term];
-                        const colors = ['#dbeafe', '#d1fae5', '#fed7aa', '#e9d5ff'];
+                        const hasPermit = s.permits[term];
+                        const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
                         const termScale = convertTo1to5Scale(t.final);
                         return `
-                    <tr style="background: ${colors[idx]}; border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px 8px; font-weight: 600; color: #1f2937; text-transform: capitalize;">${term}</td>
-                        <td style="padding: 12px 8px; text-align: center; color: #4b5563;">${t.lmsFinal.toFixed(0)}%</td>
-                        <td style="padding: 12px 8px; text-align: center; color: #4b5563;">${t.lecFinal.toFixed(0)}%</td>
-                        <td style="padding: 12px 8px; text-align: center; color: #4b5563;">${t.labFinal.toFixed(0)}%</td>
-                        <td style="padding: 12px 8px; text-align: center; font-weight: 700; color: #1f2937;">${t.final.toFixed(1)}%</td>
-                        <td style="padding: 12px 8px; text-align: center; font-weight: 700; color: #1f2937;">${termScale.toFixed(2)}</td>
-                    </tr>
+                        <tr style="background-color: ${bg}; border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 10px 5px; font-weight: 600; color: #334155; text-transform: capitalize;">${term}</td>
+                            <td style="padding: 10px 5px; text-align: center; color: #64748b;">${hasPermit ? t.lmsFinal.toFixed(0)+'%' : '-'}</td>
+                            <td style="padding: 10px 5px; text-align: center; color: #64748b;">${hasPermit ? t.f2fFinal.toFixed(0)+'%' : '-'}</td>
+                            <td style="padding: 10px 5px; text-align: center; font-weight: 700; color: #334155;">${hasPermit ? t.final.toFixed(1)+'%' : '<span style="color:#ef4444; font-size:10px;">NO PERMIT</span>'}</td>
+                            <td style="padding: 10px 5px; text-align: center; font-weight: 700; color: #334155;">${hasPermit ? termScale.toFixed(2) : '-'}</td>
+                        </tr>
                         `;
                     }).join('')}
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
 
         <!-- Attendance & Bonus -->
-        <div style="padding: 25px 20px; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-            <h3 style="margin: 0 0 15px 0; font-size: 15px; color: #1f2937; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Attendance & Adjustments</h3>
-            <table style="width: 100%; font-size: 13px;">
-                <tr>
-                    <td style="padding: 10px 0; color: #4b5563;"><strong>Attendance (Present):</strong></td>
-                    <td style="padding: 10px 0; text-align: right; color: #1f2937; font-weight: 600;">${attendance} days</td>
-                </tr>
-                ${bonus > 0 ? `
-                <tr style="background: #d1fae5;">
-                    <td style="padding: 10px 8px; color: #047857;"><strong>Bonus Points:</strong></td>
-                    <td style="padding: 10px 8px; text-align: right; color: #047857; font-weight: 700;">+ ${bonus.toFixed(2)} points</td>
-                </tr>
-                ` : ''}
-            </table>
-        </div>
+        <tr>
+            <td style="padding: 0 20px 20px 20px;">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border-radius: 6px; padding: 15px; font-size: 13px;">
+                    <tr>
+                        <td style="color: #475569;"><strong>Attendance:</strong></td>
+                        <td style="text-align: right; font-weight: 600; color: #334155;">${attendance} days</td>
+                    </tr>
+                    ${bonus > 0 ? `
+                    <tr>
+                        <td style="color: #059669; padding-top: 5px;"><strong>Bonus Points:</strong></td>
+                        <td style="text-align: right; font-weight: 700; color: #059669; padding-top: 5px;">+ ${bonus.toFixed(2)}</td>
+                    </tr>` : ''}
+                </table>
+            </td>
+        </tr>
 
         <!-- Detailed Activity Log -->
-        <div style="padding: 25px 20px; border-bottom: 1px solid #e5e7eb;">
-            <h3 style="margin: 0 0 15px 0; font-size: 15px; color: #1f2937; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Detailed Activity Log</h3>
-            <div style="overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 6px;">
-                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 0 20px 20px 20px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #334155; font-weight: 700; text-transform: uppercase;">Activity Log</h3>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="font-size: 12px; border-collapse: collapse; border: 1px solid #e2e8f0;">
                     <thead>
-                        <tr style="background: #f3f4f6;">
-                            <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Date</th>
-                            <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Activity</th>
-                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Category</th>
-                            <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Score</th>
-                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Bonus</th>
-                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600; border-right: 1px solid #e5e7eb;">Bonus</th>
-                            <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
+                        <tr style="background-color: #f1f5f9;">
+                            <th style="padding: 8px; text-align: left; color: #475569; border-bottom: 1px solid #e2e8f0;">Date</th>
+                            <th style="padding: 8px; text-align: left; color: #475569; border-bottom: 1px solid #e2e8f0;">Activity</th>
+                            <th style="padding: 8px; text-align: right; color: #475569; border-bottom: 1px solid #e2e8f0;">Score</th>
+                            <th style="padding: 8px; text-align: center; color: #475569; border-bottom: 1px solid #e2e8f0;">Wgt</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${s.history.map((h, idx) => {
                             const bonus = h.bonus || 0;
                             const totalScore = h.score + bonus;
+                            const hasPermit = s.permits[h.term];
+                            if(!hasPermit) return ''; // Skip activities if no permit for that term? Or show them but indicate no credit? Usually hidden if grade is hidden. Let's hide them to save space.
                             return `
-                        <tr style="border-bottom: 1px solid #e5e7eb; background: ${idx % 2 === 0 ? 'white' : '#fafafa'};">
-                            <td style="padding: 10px 8px; color: #4b5563;">${h.date || '-'}</td>
-                            <td style="padding: 10px 8px; color: #1f2937; font-weight: 500; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${h.name}">${h.name}</td>
-                            <td style="padding: 10px 8px; text-align: center;">
-                                <span style="background: ${h.source === 'lms' ? '#dbeafe' : '#d1fae5'}; color: ${h.source === 'lms' ? '#1e40af' : '#047857'}; padding: 3px 6px; border-radius: 3px; font-size: 11px; font-weight: 600;">
-                                    ${h.source.toUpperCase()} ${h.cat || ''} ${h.type || ''}
-                                </span>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 8px; color: #64748b; white-space: nowrap;">${h.date || '-'}</td>
+                            <td style="padding: 8px; color: #334155;">
+                                <div style="font-weight: 600;">${h.name}</div>
+                                <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">${h.source} • ${h.cat} • ${h.type}</div>
                             </td>
-                            <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace;">${totalScore}/${h.max}</td>
-                            <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
-                            <td style="padding: 10px 8px; text-align: center; color: #4b5563;">${h.weight}%</td>
+                            <td style="padding: 8px; text-align: right; font-family: monospace; font-weight: 600; color: #334155;">
+                                ${totalScore}/${h.max}
+                                ${bonus > 0 ? '<div style="font-size: 10px; color: #059669;">+'+bonus+'</div>' : ''}
+                            </td>
+                            <td style="padding: 8px; text-align: center; color: #64748b;">${h.weight}%</td>
                         </tr>
                         `;
                         }).join('')}
                     </tbody>
                 </table>
-            </div>
-        </div>
+            </td>
+        </tr>
 
         <!-- Instructor Remarks -->
         ${comment ? `
-        <div style="padding: 25px 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-bottom: 1px solid #e5e7eb;">
-            <h3 style="margin: 0 0 12px 0; font-size: 14px; color: #92400e; font-weight: 700;">Instructor Remarks</h3>
-            <p style="margin: 0; font-size: 13px; color: #78350f; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${comment}</p>
-        </div>
+        <tr>
+            <td style="padding: 0 20px 20px 20px;">
+                <div style="background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 15px;">
+                    <h3 style="margin: 0 0 5px 0; font-size: 13px; color: #b45309; font-weight: 700;">Instructor Remarks</h3>
+                    <p style="margin: 0; font-size: 13px; color: #92400e; line-height: 1.5;">${comment}</p>
+                </div>
+            </td>
+        </tr>
         ` : ''}
 
         <!-- Footer -->
-        <div style="padding: 25px 20px; background: #f3f4f6; text-align: center; border-top: 1px solid #e5e7eb;">
-            <p style="margin: 0 0 15px 0; font-size: 13px; color: #4b5563; line-height: 1.6;">
-                If you have any questions regarding your grades or this report, please contact your instructor or visit the learning hub.
-            </p>
-            <div style="padding: 15px 0; border-top: 1px solid #e5e7eb;">
-                <p style="margin: 0; font-size: 12px; color: #4b5563;">
-                    <strong>Bemmygail Learning Hub</strong><br>
-                    Grading & Reporting System
-                </p>
-                <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">
-                    This is an automatically generated academic report. <br>
-                    Generated on ${new Date().toLocaleString()}
-                </p>
-            </div>
-        </div>
-
-    </div>
+        <tr>
+            <td style="padding: 20px; text-align: center; color: #94a3b8; font-size: 11px;">
+                <p style="margin: 0 0 5px 0;">Bemmygail Learning Hub • Grading System</p>
+                <p style="margin: 0;">Generated on ${new Date().toLocaleString()}</p>
+            </td>
+        </tr>
+    </table>
 </div>
 
 </body>
@@ -2075,20 +2153,21 @@ lines.push("For questions regarding grading, please contact your instructor.");
 
         function generateCollegeFullReport(s, attendance, mainBonus, comment) {
             const gl = gradeLetter(s.grandTotal);
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             const termRows = ['prelim','midterm','prefinal','final'].map((t, idx) => {
+                const hasPermit = s.permits[t];
                 const term = s.terms[t];
                 const termScale = convertTo1to5Scale(term.final);
-                const colors = ['#f0fdf4', '#f0f9ff', '#fef3c7', '#fce7f3'];
-                const colorBorders = ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899'];
+                const bg = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
                 return `
-                    <tr style="background: ${colors[idx]}; border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px 10px; font-weight: 600; color: #1f2937; border-left: 4px solid ${colorBorders[idx]};">${t.toUpperCase()}</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.lmsFinal.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.lecFinal.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.labFinal.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${term.f2fFinal.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; font-weight: 700; color: #1f2937;">${term.final.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; font-weight: 700; color: ${term.final >= 75 ? '#059669' : '#dc2626'};">${termScale.toFixed(2)}</td>
+                    <tr style="background-color: ${bg}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 10px; font-weight: 600; color: #1f2937; text-transform: uppercase;">${t}</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${hasPermit ? term.lmsFinal.toFixed(1)+'%' : '-'}</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${hasPermit ? term.lecFinal.toFixed(1)+'%' : '-'}</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${hasPermit ? term.labFinal.toFixed(1)+'%' : '-'}</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${hasPermit ? term.f2fFinal.toFixed(1)+'%' : '-'}</td>
+                        <td style="padding: 10px; text-align: center; font-weight: 700; color: #1f2937;">${hasPermit ? term.final.toFixed(1)+'%' : '<span style="color:#dc2626; font-size:10px;">NO PERMIT</span>'}</td>
+                        <td style="padding: 10px; text-align: center; font-weight: 700; color: ${term.final >= 75 ? '#059669' : '#dc2626'};">${hasPermit ? termScale.toFixed(2) : '-'}</td>
                     </tr>
                 `;
             }).join('');
@@ -2102,110 +2181,125 @@ lines.push("For questions regarding grading, please contact your instructor.");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Report - ${s.name}</title>
     <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #ffffff; }
+        table { border-collapse: collapse; width: 100%; }
         @media print { 
             @page { margin: 0.5in; size: auto; } 
-            body { margin: 0; padding: 0; background: white; }
-            html { background: white; }
+            body { background-color: white; -webkit-print-color-adjust: exact; }
+            .container { box-shadow: none; }
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+<body>
 
-<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+<div class="container">
 
     <!-- HEADER -->
-    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
-        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
-        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    <div style="background-color: #1f2937; color: white; padding: 30px 20px; text-align: center;">
+        <h1 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 11px; opacity: 0.8; letter-spacing: 2px; text-transform: uppercase;">Grading & Reporting System</p>
     </div>
 
     <!-- COURSE & STUDENT INFO -->
-    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
-        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+    <div style="padding: 20px 30px;">
+        <table style="width: 100%; font-size: 13px; border: 1px solid #e5e7eb;">
             <tr>
-                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">Student</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-weight: bold; color: #1f2937;">${s.name}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">ID No.</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-family: monospace;">${s.id}</td>
             </tr>
             <tr>
-                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
-            </tr>
-            <tr>
-                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Report Type:</strong> Comprehensive Summary</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Subject</td>
+                <td style="padding: 10px; width: 35%;">${courseInfo.subject || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Section</td>
+                <td style="padding: 10px; width: 35%;">${courseInfo.section || '--'}</td>
             </tr>
         </table>
     </div>
 
     <!-- FINAL GRADE CARD -->
-    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Final Grade</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 75 ? '#059669' : '#dc2626'};">
-                    ${s.transmuted}
-                </div>
-                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
-                    ${gl.letter} • ${gl.remark}
-                </p>
-            </div>
-            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
-                <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Percentage</p>
-                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #1e40af;">${s.grandTotal.toFixed(2)}%</p>
-                <p style="margin: 8px 0 0 0; font-size: 10px; color: #1e40af;">Out of 100</p>
-            </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="60%" valign="middle">
+                        <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Final Grade</p>
+                        <div style="font-size: 48px; font-weight: 900; color: ${dynamicGrade >= 50 ? '#059669' : '#dc2626'}; line-height: 1;">
+                            ${transmuted}
+                        </div>
+                        <p style="margin: 5px 0 0 0; font-size: 13px; color: #1e40af; font-weight: 600;">
+                            ${gl.letter} • ${gl.remark}
+                        </p>
+                    </td>
+                    <td width="40%" valign="middle" style="border-left: 1px solid #bfdbfe; padding-left: 20px;">
+                        <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase;">Percentage</p>
+                        <p style="margin: 0; font-size: 28px; font-weight: 700; color: #1e40af;">${dynamicGrade.toFixed(2)}%</p>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #1e40af;">Base-50 Scale</p>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
     <!-- ATTENDANCE -->
-    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
-        <div>
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days present</p>
-        </div>
-        <div style="text-align: right;">
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
-                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px 20px; border-radius: 6px;">
+            <p style="margin: 0; font-size: 14px; color: #166534;">
+                <strong>Attendance:</strong> <span style="font-size: 16px; font-weight: bold; margin-left: 5px;">${attendance}</span> days present
             </p>
         </div>
     </div>
 
     <!-- TERM BREAKDOWN TABLE -->
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Term Performance Breakdown</h3>
-        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                <thead>
-                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
-                        <th style="padding: 10px 10px; text-align: left; color: #4b5563; font-weight: 600;">Term</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">LMS</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Lecture</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Lab</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">F2F</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Grade</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">1-5 Scale</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${termRows}
-                </tbody>
-            </table>
-        </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Term Performance Summary</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+                <tr style="background-color: #f3f4f6;">
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Term</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">LMS</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Lecture</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Lab</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">F2F</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Total</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Scale</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${termRows}
+            </tbody>
+        </table>
     </div>
 
-    <!-- REMARKS -->
-    ${comment ? `
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7; margin: 0;">
-        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Instructor Remarks</h3>
-        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    <!-- BONUS & REMARKS (BOTTOM) -->
+    <div style="padding: 0 30px 30px 30px;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="50%" valign="top" style="padding-right: 15px;">
+                    <div style="background-color: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #b45309; text-transform: uppercase;">Instructor Remarks</h4>
+                        <p style="margin: 0; font-size: 13px; color: #92400e; font-style: italic;">${comment || 'No remarks.'}</p>
+                    </div>
+                </td>
+                <td width="50%" valign="top" style="padding-left: 15px;">
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #475569; text-transform: uppercase;">Overall Bonus Points</h4>
+                        <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${mainBonus > 0 ? '#059669' : '#94a3b8'};">
+                            ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+                        </p>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">Added to Final Grade</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
-    ` : ''}
 
-    <!-- FOOTER -->
-    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
-        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
-        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    <!-- Footer -->
+    <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold; color: #4b5563;">Bemmygail Learning Hub • Grading & Reporting System</p>
+        <p style="margin: 0; font-size: 11px; color: #9ca3af;">Generated on ${dateStr}</p>
     </div>
 
 </div>
@@ -2218,19 +2312,20 @@ lines.push("For questions regarding grading, please contact your instructor.");
         function generateCollegeSingleTermReport(s, opts, attendance, mainBonus, comment) {
             const hist = filterHistoryByOptions(s.history || [], opts, 'college');
             const term = s.terms[opts.term];
+            const hasPermit = s.permits[opts.term];
             
             const activitiesRows = hist.map((h, idx) => {
                 const bonus = h.bonus||0;
                 const total = h.score + bonus;
-                const bgColor = idx % 2 === 0 ? 'white' : '#f9fafb';
+                const bgColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
                 return `
-                    <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 10px 8px; font-size: 12px; color: #4b5563;">${h.date||'-'}</td>
-                        <td style="padding: 10px 8px; color: #1f2937; font-weight: 500; font-size: 12px;">${h.name||''}</td>
-                        <td style="padding: 10px 8px; font-size: 11px; color: #4b5563;">${h.source||''} ${h.cat||''} ${h.type||''}</td>
-                        <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace; font-size: 12px;">${total}/${h.max}</td>
-                        <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace; font-size: 12px;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
-                        <td style="padding: 10px 8px; text-align: center; color: #4b5563; font-size: 12px;">${h.weight}%</td>
+                    <tr style="background-color: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 8px; font-size: 12px; color: #4b5563;">${h.date||'-'}</td>
+                        <td style="padding: 8px; color: #1f2937; font-weight: 600; font-size: 12px;">${h.name||''}</td>
+                        <td style="padding: 8px; font-size: 11px; color: #6b7280;">${h.source.toUpperCase()} ${h.cat}</td>
+                        <td style="padding: 8px; text-align: right; color: #1f2937; font-weight: 700; font-family: monospace;">${total}/${h.max}</td>
+                        <td style="padding: 8px; text-align: center; color: ${bonus > 0 ? '#059669' : '#9ca3af'}; font-weight: 700;">${bonus > 0 ? '+' + bonus : '-'}</td>
+                        <td style="padding: 8px; text-align: center; color: #6b7280; font-size: 11px;">${h.weight}%</td>
                     </tr>
                 `;
             }).join('');
@@ -2238,6 +2333,7 @@ lines.push("For questions regarding grading, please contact your instructor.");
             const isF2FOnly = opts.source === 'f2f';
             const displayGrade = isF2FOnly ? term.f2fFinal : term.final;
             const termScale = convertTo1to5Scale(displayGrade);
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
             return `
 <!DOCTYPE html>
@@ -2248,110 +2344,133 @@ lines.push("For questions regarding grading, please contact your instructor.");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Report - ${s.name}</title>
     <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #ffffff; }
+        table { border-collapse: collapse; width: 100%; }
         @media print { 
             @page { margin: 0.5in; size: auto; } 
-            body { margin: 0; padding: 0; background: white; }
-            html { background: white; }
+            body { background-color: white; -webkit-print-color-adjust: exact; }
+            .container { box-shadow: none; }
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+<body>
 
-<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+<div class="container">
 
     <!-- HEADER -->
-    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
-        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
-        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    <div style="background-color: #1f2937; color: white; padding: 30px 20px; text-align: center;">
+        <h1 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 11px; opacity: 0.8; letter-spacing: 2px; text-transform: uppercase;">Grading & Reporting System</p>
     </div>
 
     <!-- COURSE & STUDENT INFO -->
-    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
-        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+    <div style="padding: 20px 30px;">
+        <table style="width: 100%; font-size: 13px; border: 1px solid #e5e7eb;">
             <tr>
-                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">Student</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-weight: bold; color: #1f2937;">${s.name}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">ID No.</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-family: monospace;">${s.id}</td>
             </tr>
             <tr>
-                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
-            </tr>
-            <tr>
-                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Term:</strong> ${opts.term.toUpperCase()} (${isF2FOnly ? 'F2F Only' : 'F2F+LMS'})</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Subject</td>
+                <td style="padding: 10px; width: 35%;">${courseInfo.subject || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Term</td>
+                <td style="padding: 10px; width: 35%;">${opts.term.toUpperCase()} <span style="font-size:11px; color:#6b7280;">(${isF2FOnly ? 'F2F Only' : 'F2F+LMS'})</span></td>
             </tr>
         </table>
     </div>
 
     <!-- TERM GRADE CARD -->
-    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Term Grade</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <div style="font-size: 48px; font-weight: 900; color: #1e40af;">
-                    ${termScale.toFixed(2)}
-                </div>
-                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
-                    Percentage: ${displayGrade.toFixed(1)}%
-                </p>
-            </div>
-            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
-                <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Breakdown</p>
-                ${!isF2FOnly ? `<p style="margin: 3px 0; font-size: 12px; color: #1e40af;">LMS: ${term.lmsFinal.toFixed(1)}%</p>` : ''}
-                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Lecture: ${term.lecFinal.toFixed(1)}%</p>
-                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Lab: ${term.labFinal.toFixed(1)}%</p>
-            </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: ${hasPermit ? '#eff6ff' : '#fef2f2'}; border: 1px solid ${hasPermit ? '#bfdbfe' : '#fecaca'}; border-radius: 8px; padding: 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="60%" valign="middle">
+                        <p style="margin: 0 0 5px 0; font-size: 11px; color: ${hasPermit ? '#1e40af' : '#991b1b'}; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Term Grade</p>
+                        <div style="font-size: 48px; font-weight: 900; color: ${hasPermit ? '#1e40af' : '#dc2626'}; line-height: 1;">
+                            ${hasPermit ? termScale.toFixed(2) : 'NO PERMIT'}
+                        </div>
+                        <p style="margin: 5px 0 0 0; font-size: 13px; color: ${hasPermit ? '#1e40af' : '#991b1b'}; font-weight: 600;">
+                            Percentage: ${hasPermit ? displayGrade.toFixed(1) + '%' : '---'}
+                        </p>
+                    </td>
+                    <td width="40%" valign="middle" style="border-left: 1px solid ${hasPermit ? '#bfdbfe' : '#fecaca'}; padding-left: 20px;">
+                        ${hasPermit ? `
+                        <p style="margin: 0 0 8px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase;">Breakdown</p>
+                        <table width="100%" style="font-size: 12px; color: #1e3a8a;">
+                            ${!isF2FOnly ? `<tr><td style="padding:2px 0;">LMS:</td><td style="text-align:right; font-weight:bold;">${term.lmsFinal.toFixed(1)}%</td></tr>` : ''}
+                            <tr><td style="padding:2px 0;">Lecture:</td><td style="text-align:right; font-weight:bold;">${term.lecFinal.toFixed(1)}%</td></tr>
+                            <tr><td style="padding:2px 0;">Lab:</td><td style="text-align:right; font-weight:bold;">${term.labFinal.toFixed(1)}%</td></tr>
+                        </table>
+                        ` : `
+                        <div style="text-align: center; color: #991b1b; font-size: 12px; font-style: italic;">
+                            <p>Please settle your account to view grade breakdown.</p>
+                        </div>
+                        `}
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
     <!-- ATTENDANCE -->
-    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
-        <div>
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days</p>
-        </div>
-        <div style="text-align: right;">
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
-                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px 20px; border-radius: 6px;">
+            <p style="margin: 0; font-size: 14px; color: #166534;">
+                <strong>Attendance:</strong> <span style="font-size: 16px; font-weight: bold; margin-left: 5px;">${attendance}</span> days present
             </p>
         </div>
     </div>
 
     <!-- ACTIVITY LOG TABLE -->
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Detailed Activity Log</h3>
-        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                <thead>
-                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Date</th>
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Activity</th>
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Category</th>
-                        <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600;">Score</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Bonus</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${activitiesRows}
-                </tbody>
-            </table>
-        </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Detailed Activity Log</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+                <tr style="background-color: #f3f4f6;">
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Date</th>
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Activity</th>
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Type</th>
+                    <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Score</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Bonus</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Wgt</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${activitiesRows}
+            </tbody>
+        </table>
     </div>
 
-    <!-- REMARKS -->
-    ${comment ? `
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7;">
-        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Remarks</h3>
-        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    <!-- BONUS & REMARKS (BOTTOM) -->
+    <div style="padding: 0 30px 30px 30px;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="50%" valign="top" style="padding-right: 15px;">
+                    <div style="background-color: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #b45309; text-transform: uppercase;">Instructor Remarks</h4>
+                        <p style="margin: 0; font-size: 13px; color: #92400e; font-style: italic;">${comment || 'No remarks.'}</p>
+                    </div>
+                </td>
+                <td width="50%" valign="top" style="padding-left: 15px;">
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #475569; text-transform: uppercase;">Overall Bonus Points</h4>
+                        <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${mainBonus > 0 ? '#059669' : '#94a3b8'};">
+                            ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+                        </p>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">Added to Final Grade</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
-    ` : ''}
 
-    <!-- FOOTER -->
-    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
-        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
-        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    <!-- Footer -->
+    <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold; color: #4b5563;">Bemmygail Learning Hub • Grading & Reporting System</p>
+        <p style="margin: 0; font-size: 11px; color: #9ca3af;">Generated on ${dateStr}</p>
     </div>
 
 </div>
@@ -2363,17 +2482,17 @@ lines.push("For questions regarding grading, please contact your instructor.");
 
         function generateSHSFullReport(s, attendance, mainBonus, comment) {
             const gl = gradeLetter(s.grandTotal);
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             const quarterRows = ['q3','q4'].map((q, idx) => {
                 const qq = s.quarters[q];
-                const colors = ['#fef3c7', '#fce7f3'];
-                const colorBorders = ['#f59e0b', '#ec4899'];
+                const bg = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
                 return `
-                    <tr style="background: ${colors[idx]}; border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px 10px; font-weight: 600; color: #1f2937; border-left: 4px solid ${colorBorders[idx]};">${q === 'q3' ? 'QUARTER 3' : 'QUARTER 4'}</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${qq.writtenGrade.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${qq.performanceGrade.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; color: #4b5563;">${qq.assessmentGrade.toFixed(1)}%</td>
-                        <td style="padding: 12px 10px; text-align: center; font-weight: 700; color: ${qq.final >= 75 ? '#059669' : '#dc2626'};">${qq.final.toFixed(1)}%</td>
+                    <tr style="background-color: ${bg}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 10px; font-weight: 600; color: #1f2937; text-transform: uppercase;">${q === 'q3' ? 'QUARTER 3' : 'QUARTER 4'}</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${qq.writtenGrade.toFixed(1)}%</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${qq.performanceGrade.toFixed(1)}%</td>
+                        <td style="padding: 10px; text-align: center; color: #4b5563;">${qq.assessmentGrade.toFixed(1)}%</td>
+                        <td style="padding: 10px; text-align: center; font-weight: 700; color: ${qq.final >= 75 ? '#059669' : '#dc2626'};">${qq.final.toFixed(1)}%</td>
                     </tr>
                 `;
             }).join('');
@@ -2387,108 +2506,123 @@ lines.push("For questions regarding grading, please contact your instructor.");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Report - ${s.name}</title>
     <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #ffffff; }
+        table { border-collapse: collapse; width: 100%; }
         @media print { 
             @page { margin: 0.5in; size: auto; } 
-            body { margin: 0; padding: 0; background: white; }
-            html { background: white; }
+            body { background-color: white; -webkit-print-color-adjust: exact; }
+            .container { box-shadow: none; }
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+<body>
 
-<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+<div class="container">
 
     <!-- HEADER -->
-    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
-        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
-        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    <div style="background-color: #1f2937; color: white; padding: 30px 20px; text-align: center;">
+        <h1 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 11px; opacity: 0.8; letter-spacing: 2px; text-transform: uppercase;">Grading & Reporting System</p>
     </div>
 
     <!-- COURSE & STUDENT INFO -->
-    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
-        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+    <div style="padding: 20px 30px;">
+        <table style="width: 100%; font-size: 13px; border: 1px solid #e5e7eb;">
             <tr>
-                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">Student</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-weight: bold; color: #1f2937;">${s.name}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">ID No.</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-family: monospace;">${s.id}</td>
             </tr>
             <tr>
-                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
-            </tr>
-            <tr>
-                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Level:</strong> Senior High School</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Subject</td>
+                <td style="padding: 10px; width: 35%;">${courseInfo.subject || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Section</td>
+                <td style="padding: 10px; width: 35%;">${courseInfo.section || '--'}</td>
             </tr>
         </table>
     </div>
 
     <!-- FINAL GRADE CARD -->
-    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Final Grade</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 75 ? '#059669' : '#dc2626'};">
-                    ${s.transmuted}
-                </div>
-                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
-                    ${gl.letter} • ${gl.remark}
-                </p>
-            </div>
-            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
-                <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Percentage</p>
-                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #1e40af;">${s.grandTotal.toFixed(2)}%</p>
-                <p style="margin: 8px 0 0 0; font-size: 10px; color: #1e40af;">Out of 100</p>
-            </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="60%" valign="middle">
+                    <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Semestral Grade</p>
+                    <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 75 ? '#059669' : '#dc2626'}; line-height: 1;">
+                        ${s.transmuted}
+                    </div>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #1e40af; font-weight: 600;">
+                        ${gl.letter} • ${gl.remark}
+                    </p>
+                </td>
+                <td width="40%" valign="middle" style="border-left: 1px solid #bfdbfe; padding-left: 20px;">
+                    <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase;">Percentage</p>
+                    <p style="margin: 0; font-size: 28px; font-weight: 700; color: #1e40af;">${s.grandTotal.toFixed(2)}%</p>
+                    <p style="margin: 2px 0 0 0; font-size: 10px; color: #1e40af;">1-100 Scale</p>
+                </td>
+            </tr>
+            </table>
         </div>
     </div>
 
     <!-- ATTENDANCE -->
-    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
-        <div>
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days present</p>
-        </div>
-        <div style="text-align: right;">
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
-                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px 20px; border-radius: 6px;">
+            <p style="margin: 0; font-size: 14px; color: #166534;">
+                <strong>Attendance:</strong> <span style="font-size: 16px; font-weight: bold; margin-left: 5px;">${attendance}</span> days present
             </p>
         </div>
     </div>
 
     <!-- QUARTER BREAKDOWN TABLE -->
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Quarter Performance Breakdown</h3>
-        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                <thead>
-                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
-                        <th style="padding: 10px 10px; text-align: left; color: #4b5563; font-weight: 600;">Quarter</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Written</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Performance</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Assessment</th>
-                        <th style="padding: 10px 10px; text-align: center; color: #4b5563; font-weight: 600;">Grade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${quarterRows}
-                </tbody>
-            </table>
-        </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Quarter Performance Summary</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+                <tr style="background-color: #f3f4f6;">
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Quarter</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Written</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Performance</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Assessment</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${quarterRows}
+            </tbody>
+        </table>
     </div>
 
-    <!-- REMARKS -->
-    ${comment ? `
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7;">
-        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Remarks</h3>
-        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    <!-- BONUS & REMARKS (BOTTOM) -->
+    <div style="padding: 0 30px 30px 30px;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="50%" valign="top" style="padding-right: 15px;">
+                    <div style="background-color: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #b45309; text-transform: uppercase;">Instructor Remarks</h4>
+                        <p style="margin: 0; font-size: 13px; color: #92400e; font-style: italic;">${comment || 'No remarks.'}</p>
+                    </div>
+                </td>
+                <td width="50%" valign="top" style="padding-left: 15px;">
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #475569; text-transform: uppercase;">Overall Bonus Points</h4>
+                        <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${mainBonus > 0 ? '#059669' : '#94a3b8'};">
+                            ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+                        </p>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">Added to Final Grade</p>
+                    </div>
+                </td>
+            </td>
+        </table>
     </div>
-    ` : ''}
 
-    <!-- FOOTER -->
-    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
-        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
-        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    <!-- Footer -->
+    <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold; color: #4b5563;">Bemmygail Learning Hub • Grading & Reporting System</p>
+        <p style="margin: 0; font-size: 11px; color: #9ca3af;">Generated on ${dateStr}</p>
     </div>
 
 </div>
@@ -2502,19 +2636,20 @@ lines.push("For questions regarding grading, please contact your instructor.");
             const hist = filterHistoryByOptions(s.history || [], opts, 'shs');
             const quarterKey = opts.quarter; // 'q3' or 'q4'
             const qq = s.quarters[quarterKey];
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             
             const activitiesRows = hist.map((h, idx) => {
                 const bonus = h.bonus||0;
                 const total = h.score + bonus;
-                const bgColor = idx % 2 === 0 ? 'white' : '#f9fafb';
+                const bgColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
                 return `
-                    <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 10px 8px; font-size: 12px; color: #4b5563;">${h.date||'-'}</td>
-                        <td style="padding: 10px 8px; color: #1f2937; font-weight: 500; font-size: 12px;">${h.name||''}</td>
-                        <td style="padding: 10px 8px; font-size: 11px; color: #4b5563;">${h.type||''}</td>
-                        <td style="padding: 10px 8px; text-align: right; color: #1f2937; font-weight: 600; font-family: monospace; font-size: 12px;">${total}/${h.max}</td>
-                        <td style="padding: 10px 8px; text-align: center; color: ${bonus > 0 ? '#047857' : '#4b5563'}; font-weight: ${bonus > 0 ? '600' : '400'}; font-family: monospace; font-size: 12px;">${bonus > 0 ? '+' + bonus.toFixed(2) : '-'}</td>
-                        <td style="padding: 10px 8px; text-align: center; color: #4b5563; font-size: 12px;">${h.weight}%</td>
+                    <tr style="background-color: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 8px; font-size: 12px; color: #4b5563;">${h.date||'-'}</td>
+                        <td style="padding: 8px; color: #1f2937; font-weight: 600; font-size: 12px;">${h.name||''}</td>
+                        <td style="padding: 8px; font-size: 11px; color: #6b7280;">${h.category.toUpperCase()}</td>
+                        <td style="padding: 8px; text-align: right; color: #1f2937; font-weight: 700; font-family: monospace;">${total}/${h.max}</td>
+                        <td style="padding: 8px; text-align: center; color: ${bonus > 0 ? '#059669' : '#9ca3af'}; font-weight: 700;">${bonus > 0 ? '+' + bonus : '-'}</td>
+                        <td style="padding: 8px; text-align: center; color: #6b7280; font-size: 11px;">${h.weight}%</td>
                     </tr>
                 `;
             }).join('');
@@ -2528,110 +2663,127 @@ lines.push("For questions regarding grading, please contact your instructor.");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Report - ${s.name}</title>
     <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #ffffff; }
+        table { border-collapse: collapse; width: 100%; }
         @media print { 
             @page { margin: 0.5in; size: auto; } 
-            body { margin: 0; padding: 0; background: white; }
-            html { background: white; }
+            body { background-color: white; -webkit-print-color-adjust: exact; }
+            .container { box-shadow: none; }
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; background: white;">
+<body>
 
-<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px 20px;">
+<div class="container">
 
     <!-- HEADER -->
-    <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
-        <h1 style="margin: 0 0 5px 0; font-size: 28px; font-weight: 700;">Bemmygail Learning Hub</h1>
-        <p style="margin: 0; font-size: 12px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase;">GRADING & REPORTING SYSTEM</p>
+    <div style="background-color: #1f2937; color: white; padding: 30px 20px; text-align: center;">
+        <h1 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Bemmygail Learning Hub</h1>
+        <p style="margin: 0; font-size: 11px; opacity: 0.8; letter-spacing: 2px; text-transform: uppercase;">Grading & Reporting System</p>
     </div>
 
     <!-- COURSE & STUDENT INFO -->
-    <div style="background: #f9fafb; padding: 20px 30px; border-bottom: 1px solid #e5e7eb;">
-        <table style="width: 100%; font-size: 13px; margin-bottom: 12px;">
+    <div style="padding: 20px 30px;">
+        <table style="width: 100%; font-size: 13px; border: 1px solid #e5e7eb;">
             <tr>
-                <td style="padding: 4px 0;"><strong>Subject:</strong> ${courseInfo.subject || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Section:</strong> ${courseInfo.section || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">Student</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-weight: bold; color: #1f2937;">${s.name}</td>
+                <td style="padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; width: 15%; font-weight: bold; color: #4b5563;">ID No.</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; width: 35%; font-family: monospace;">${s.id}</td>
             </tr>
             <tr>
-                <td style="padding: 4px 0;"><strong>Name:</strong> ${s.name}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>ID:</strong> ${s.id}</td>
-            </tr>
-            <tr>
-                <td style="padding: 4px 0;"><strong>School Year:</strong> ${courseInfo.schoolYear || '--'}</td>
-                <td style="padding: 4px 0; text-align: right;"><strong>Quarter:</strong> ${quarterKey === 'q3' ? 'QUARTER 3' : 'QUARTER 4'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Subject</td>
+                <td style="padding: 10px; width: 35%;">${courseInfo.subject || '--'}</td>
+                <td style="padding: 10px; background-color: #f9fafb; width: 15%; font-weight: bold; color: #4b5563;">Quarter</td>
+                <td style="padding: 10px; width: 35%;">${quarterKey === 'q3' ? 'QUARTER 3' : 'QUARTER 4'}</td>
             </tr>
         </table>
     </div>
 
     <!-- QUARTER GRADE CARD -->
-    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Quarter Grade</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <div style="font-size: 48px; font-weight: 900; color: #1e40af;">
-                    ${qq.final.toFixed(1)}%
-                </div>
-                <p style="margin: 8px 0 0 0; font-size: 12px; color: #1e40af; font-weight: 600;">
-                    ${qq.final >= 75 ? 'PASSED' : 'NEEDS IMPROVEMENT'}
-                </p>
-            </div>
-            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; border-left: 2px solid #3b82f6;">
-                <p style="margin: 0 0 10px 0; font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Breakdown</p>
-                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Written: ${qq.writtenGrade.toFixed(1)}%</p>
-                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Performance: ${qq.performanceGrade.toFixed(1)}%</p>
-                <p style="margin: 3px 0; font-size: 12px; color: #1e40af;">Assessment: ${qq.assessmentGrade.toFixed(1)}%</p>
-            </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="60%" valign="middle">
+                    <p style="margin: 0 0 5px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Quarter Grade</p>
+                    <div style="font-size: 48px; font-weight: 900; color: ${qq.final >= 75 ? '#059669' : '#dc2626'}; line-height: 1;">
+                        ${qq.final.toFixed(1)}%
+                    </div>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #1e40af; font-weight: 600;">
+                        ${qq.final >= 75 ? 'PASSED' : 'NEEDS IMPROVEMENT'}
+                    </p>
+                </td>
+                <td width="40%" valign="middle" style="border-left: 1px solid #bfdbfe; padding-left: 20px;">
+                    <p style="margin: 0 0 8px 0; font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase;">Breakdown</p>
+                    <table width="100%" style="font-size: 12px; color: #1e3a8a;">
+                        <tr><td style="padding:2px 0;">Written:</td><td style="text-align:right; font-weight:bold;">${qq.writtenGrade.toFixed(1)}%</td></tr>
+                        <tr><td style="padding:2px 0;">Performance:</td><td style="text-align:right; font-weight:bold;">${qq.performanceGrade.toFixed(1)}%</td></tr>
+                        <tr><td style="padding:2px 0;">Assessment:</td><td style="text-align:right; font-weight:bold;">${qq.assessmentGrade.toFixed(1)}%</td></tr>
+                    </table>
+                </td>
+            </tr>
+            </table>
         </div>
     </div>
 
     <!-- ATTENDANCE -->
-    <div style="background: #f0fdf4; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
-        <div>
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Attendance</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #059669;">${attendance} days</p>
-        </div>
-        <div style="text-align: right;">
-            <p style="margin: 0 0 4px 0; font-size: 11px; color: #166534; font-weight: 600; text-transform: uppercase;">Bonus Points</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 700; color: ${mainBonus > 0 ? '#059669' : '#9ca3af'};">
-                ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+    <div style="padding: 0 30px 20px 30px;">
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px 20px; border-radius: 6px;">
+            <p style="margin: 0; font-size: 14px; color: #166534;">
+                <strong>Attendance:</strong> <span style="font-size: 16px; font-weight: bold; margin-left: 5px;">${attendance}</span> days present
             </p>
         </div>
     </div>
 
     <!-- ACTIVITY LOG TABLE -->
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb;">
-        <h3 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px;">Detailed Activity Log</h3>
-        <div style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                <thead>
-                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Date</th>
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Activity</th>
-                        <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 600;">Type</th>
-                        <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 600;">Score</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Bonus</th>
-                        <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 600;">Weight</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${activitiesRows}
-                </tbody>
-            </table>
-        </div>
+    <div style="padding: 0 30px 20px 30px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Detailed Activity Log</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+                <tr style="background-color: #f3f4f6;">
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Date</th>
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Activity</th>
+                    <th style="padding: 10px 8px; text-align: left; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Category</th>
+                    <th style="padding: 10px 8px; text-align: right; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Score</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Bonus</th>
+                    <th style="padding: 10px 8px; text-align: center; color: #4b5563; font-weight: 700; border-bottom: 2px solid #e5e7eb;">Wgt</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${activitiesRows}
+            </tbody>
+        </table>
     </div>
 
-    <!-- REMARKS -->
-    ${comment ? `
-    <div style="padding: 25px 30px; border-bottom: 1px solid #e5e7eb; background: #fef3c7;">
-        <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Remarks</h3>
-        <p style="margin: 0; font-size: 12px; color: #78350f; white-space: pre-wrap; line-height: 1.5;">${comment}</p>
+    <!-- BONUS & REMARKS (BOTTOM) -->
+    <div style="padding: 0 30px 30px 30px;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="50%" valign="top" style="padding-right: 15px;">
+                    <div style="background-color: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #b45309; text-transform: uppercase;">Instructor Remarks</h4>
+                        <p style="margin: 0; font-size: 13px; color: #92400e; font-style: italic;">${comment || 'No remarks.'}</p>
+                    </div>
+                </td>
+                <td width="50%" valign="top" style="padding-left: 15px;">
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; height: 100%;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #475569; text-transform: uppercase;">Overall Bonus Points</h4>
+                        <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${mainBonus > 0 ? '#059669' : '#94a3b8'};">
+                            ${mainBonus > 0 ? '+' + mainBonus.toFixed(2) : '—'}
+                        </p>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">Added to Final Grade</p>
+                    </div>
+                </td>
+            </td>
+        </table>
     </div>
-    ` : ''}
 
-    <!-- FOOTER -->
-    <div style="background: #f3f4f6; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center; color: #4b5563; font-size: 11px;">
-        <p style="margin: 0 0 8px 0;"><strong>Bemmygail Learning Hub</strong> • Grading & Reporting System</p>
-        <p style="margin: 0; color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+    <!-- Footer -->
+    <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold; color: #4b5563;">Bemmygail Learning Hub • Grading & Reporting System</p>
+        <p style="margin: 0; font-size: 11px; color: #9ca3af;">Generated on ${dateStr}</p>
     </div>
 
 </div>
@@ -2726,6 +2878,7 @@ lines.push("For questions regarding grading, please contact your instructor.");
 
         <!-- Final Grade Summary Card -->
         <div style="padding: 25px 20px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-bottom: 2px solid #10b981; text-align: center;">
+        <div style="padding: 25px 20px; background-color: #d1fae5; border-bottom: 2px solid #10b981; text-align: center;">
             <p style="margin: 0 0 10px 0; font-size: 11px; color: #047857; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Semestral Grade</p>
             <div style="font-size: 48px; font-weight: 900; color: ${s.grandTotal >= 75 ? '#059669' : '#dc2626'}; margin: 0 0 10px 0;">
                 ${s.transmuted}
