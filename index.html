@@ -275,7 +275,7 @@
                 <h3 class="font-bold text-slate-700 text-lg mb-4 flex items-center gap-2">
                     <i class="fas fa-info-circle text-blue-500"></i> Course Information
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
                         <label class="text-xs uppercase font-bold text-slate-500 block mb-2">Subject</label>
                         <input type="text" id="inp-subject" placeholder="e.g., Mathematics" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" oninput="courseInfo.subject = this.value">
@@ -287,6 +287,13 @@
                     <div>
                         <label class="text-xs uppercase font-bold text-slate-500 block mb-2">School Year</label>
                         <input type="text" id="inp-schoolyear" placeholder="e.g., 2025-2026" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" oninput="courseInfo.schoolYear = this.value">
+                    </div>
+                    <div id="div-class-type" class="hidden">
+                        <label class="text-xs uppercase font-bold text-slate-500 block mb-2">Class Structure</label>
+                        <select id="sel-class-type" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" onchange="updateClassType(this.value)">
+                            <option value="lec_lab">Lecture + Lab</option>
+                            <option value="lec_only">Lecture Only</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -580,7 +587,8 @@
         let courseInfo = {
             subject: '',
             section: '',
-            schoolYear: ''
+            schoolYear: '',
+            classType: 'lec_lab'
         };
 
         // ============================================
@@ -784,6 +792,7 @@
                 <td class="p-3">
                     <select class="map-action w-full border rounded text-xs font-bold p-1.5 bg-slate-50 shadow-sm" onchange="uiUpdate(this)">
                         <option value="grade" ${isID||isAtt?'':'selected'}>Grade</option>
+                        <option value="bonus_pool">Bonus Pool (Spread)</option>
                         <option value="id" ${isID?'selected':''}>Set as ID</option>
                         <option value="attendance" ${isAtt?'selected':''}>Attendance</option>
                         <option value="ignore">Ignore</option>
@@ -823,6 +832,7 @@
                 <td class="p-3">
                     <select class="map-action w-full border rounded text-xs font-bold p-1.5 bg-slate-50 shadow-sm" onchange="uiUpdate(this)">
                         <option value="grade" ${isID||isAtt?'':'selected'}>Grade</option>
+                        <option value="bonus_pool">Bonus Pool (Spread)</option>
                         <option value="id" ${isID?'selected':''}>Set as ID</option>
                         <option value="attendance" ${isAtt?'selected':''}>Attendance</option>
                         <option value="ignore">Ignore</option>
@@ -837,9 +847,16 @@
             const action = tr.querySelector('.map-action').value;
             const selects = tr.querySelectorAll('select:not(.map-action)');
 
-            if(action !== 'grade') {
+            if(action === 'ignore' || action === 'id' || action === 'attendance') {
                 selects.forEach(s => s.disabled = true);
                 tr.classList.add('opacity-50');
+            } else if (action === 'bonus_pool') {
+                selects.forEach(s => s.disabled = true);
+                const term = tr.querySelector('.map-term');
+                const quarter = tr.querySelector('.map-quarter');
+                if(term) term.disabled = false;
+                if(quarter) quarter.disabled = false;
+                tr.classList.remove('opacity-50');
             } else {
                 selects.forEach(s => s.disabled = false);
                 tr.classList.remove('opacity-50');
@@ -887,6 +904,7 @@
             const firstIdx = headers.findIndex(h => h.toLowerCase().includes("first name"));
             const emailIdx = headers.findIndex(h => h.toLowerCase().includes("email"));
             const idMap = mapping.find(m => m.action === 'id');
+            const totalAttCols = mapping.filter(m => m.action === 'attendance').length;
 
             students = rawData.map(row => {
                 let s = {
@@ -909,12 +927,66 @@
                     };
                 });
 
+                // 1. Initialize Bonus Pools (Per Term + Global)
+                let bonusPools = { prelim: 0, midterm: 0, prefinal: 0, final: 0, global: 0 };
+                mapping.filter(m => m.action === 'bonus_pool').forEach(m => {
+                    let val = parseFloat(row[m.idx]) || 0;
+                    if(m.term && bonusPools[m.term] !== undefined) {
+                        bonusPools[m.term] += val;
+                    } else {
+                        bonusPools.global += val;
+                    }
+                });
+
+                // 2. Collect Activities & Calculate Attendance
+                let activities = [];
                 mapping.forEach(m => {
                     let val = parseFloat(row[m.idx]) || 0;
                     
                     if(m.action === 'attendance') {
                         if(val > 0 || (row[m.idx] && row[m.idx].toLowerCase().includes('p'))) s.attendance++;
                     } else if(m.action === 'grade') {
+                        activities.push({ m, val, bonus: 0 });
+                    }
+                });
+
+                // 3. Perfect Attendance Bonus (Add to Global Pool)
+                if(totalAttCols > 0 && s.attendance === totalAttCols) {
+                    bonusPools.global += 5;
+                }
+
+                // 4. Distribute Bonus
+                activities.forEach(act => {
+                    if (act.val < act.m.max) {
+                        let needed = act.m.max - act.val;
+                        let taken = 0;
+                        
+                        // Try term-specific pool first
+                        if(act.m.term && bonusPools[act.m.term] > 0) {
+                            let fromTerm = Math.min(needed, bonusPools[act.m.term]);
+                            bonusPools[act.m.term] -= fromTerm;
+                            taken += fromTerm;
+                            needed -= fromTerm;
+                        }
+
+                        // Try global pool next
+                        if(needed > 0 && bonusPools.global > 0) {
+                            let fromGlobal = Math.min(needed, bonusPools.global);
+                            bonusPools.global -= fromGlobal;
+                            taken += fromGlobal;
+                        }
+
+                        act.bonus = taken;
+                    }
+                });
+
+                // 4. Process Activities & Aggregate
+                activities.forEach(act => {
+                    let m = act.m;
+                    let val = act.val;
+                    let bonus = act.bonus;
+                    let effectiveScore = val + bonus;
+
                         let weightLog = 0;
                         if(m.source === 'lms') weightLog = 40; 
                         else {
@@ -926,17 +998,16 @@
                         s.history.push({
                             date: m.date, name: m.name, term: m.term, 
                             cat: m.cat, type: m.type, score: val, max: m.max,
-                            weight: weightLog, source: m.source
+                            weight: weightLog, source: m.source, bonus: bonus
                         });
 
                         let t = s.terms[m.term];
                         if(m.source === 'lms') {
-                            t.lms.s += val; t.lms.m += m.max;
+                            t.lms.s += effectiveScore; t.lms.m += m.max;
                         } else {
-                            t.f2f[m.cat][m.type].s += val;
+                            t.f2f[m.cat][m.type].s += effectiveScore;
                             t.f2f[m.cat][m.type].m += m.max;
                         }
-                    }
                 });
 
                 ['prelim','midterm','prefinal','final'].forEach(tKey => {
@@ -949,7 +1020,13 @@
                     let lecG = (calc(t.f2f.lec.quiz) * COLLEGE_WEIGHTS.lec.quiz) + (calc(t.f2f.lec.exam) * COLLEGE_WEIGHTS.lec.exam) + (calc(t.f2f.lec.bonus) * COLLEGE_WEIGHTS.lec.bonus);
                     let labG = (calc(t.f2f.lab.quiz) * COLLEGE_WEIGHTS.lab.quiz) + (calc(t.f2f.lab.exam) * COLLEGE_WEIGHTS.lab.exam) + (calc(t.f2f.lab.bonus) * COLLEGE_WEIGHTS.lab.bonus);
                     
-                    let f2fG = (lecG * COLLEGE_WEIGHTS.f2f.lec) + (labG * COLLEGE_WEIGHTS.f2f.lab);
+                    let f2fG = 0;
+                    if(courseInfo.classType === 'lec_only') {
+                        f2fG = lecG;
+                    } else {
+                        f2fG = (lecG * COLLEGE_WEIGHTS.f2f.lec) + (labG * COLLEGE_WEIGHTS.f2f.lab);
+                    }
+
                     t.f2fFinal = f2fG;
                     t.lecFinal = lecG;
                     t.labFinal = labG;
@@ -983,6 +1060,7 @@
             const firstIdx = headers.findIndex(h => h.toLowerCase().includes("first name"));
             const emailIdx = headers.findIndex(h => h.toLowerCase().includes("email"));
             const idMap = mapping.find(m => m.action === 'id');
+            const totalAttCols = mapping.filter(m => m.action === 'attendance').length;
 
             students = rawData.map(row => {
                 let s = {
@@ -1000,12 +1078,66 @@
                     history: []
                 };
 
+                // 1. Initialize Bonus Pools (Per Quarter + Global)
+                let bonusPools = { q3: 0, q4: 0, global: 0 };
+                mapping.filter(m => m.action === 'bonus_pool').forEach(m => {
+                    let val = parseFloat(row[m.idx]) || 0;
+                    if(m.quarter && bonusPools[m.quarter] !== undefined) {
+                        bonusPools[m.quarter] += val;
+                    } else {
+                        bonusPools.global += val;
+                    }
+                });
+
+                // 2. Collect Activities & Calculate Attendance
+                let activities = [];
                 mapping.forEach(m => {
                     let val = parseFloat(row[m.idx]) || 0;
                     
                     if(m.action === 'attendance') {
                         if(val > 0 || (row[m.idx] && row[m.idx].toLowerCase().includes('p'))) s.attendance++;
                     } else if(m.action === 'grade') {
+                        activities.push({ m, val, bonus: 0 });
+                    }
+                });
+
+                // 3. Perfect Attendance Bonus (Add to Global Pool)
+                if(totalAttCols > 0 && s.attendance === totalAttCols) {
+                    bonusPools.global += 5;
+                }
+
+                // 4. Distribute Bonus
+                activities.forEach(act => {
+                    if (act.val < act.m.max) {
+                        let needed = act.m.max - act.val;
+                        let taken = 0;
+                        
+                        // Try quarter-specific pool first
+                        if(act.m.quarter && bonusPools[act.m.quarter] > 0) {
+                            let fromQuarter = Math.min(needed, bonusPools[act.m.quarter]);
+                            bonusPools[act.m.quarter] -= fromQuarter;
+                            taken += fromQuarter;
+                            needed -= fromQuarter;
+                        }
+
+                        // Try global pool next
+                        if(needed > 0 && bonusPools.global > 0) {
+                            let fromGlobal = Math.min(needed, bonusPools.global);
+                            bonusPools.global -= fromGlobal;
+                            taken += fromGlobal;
+                        }
+
+                        act.bonus = taken;
+                    }
+                });
+
+                // 4. Process Activities & Aggregate
+                activities.forEach(act => {
+                    let m = act.m;
+                    let val = act.val;
+                    let bonus = act.bonus;
+                    let effectiveScore = val + bonus;
+
                         let weightPct = 0;
                         if(m.category === 'written') weightPct = 20;
                         else if(m.category === 'performance') weightPct = 60;
@@ -1018,13 +1150,13 @@
                             category: m.category,
                             score: val,
                             max: m.max,
-                            weight: weightPct
+                            weight: weightPct,
+                            bonus: bonus
                         });
 
                         let q = s.quarters[m.quarter];
-                        q[m.category].s += val;
+                        q[m.category].s += effectiveScore;
                         q[m.category].m += m.max;
-                    }
                 });
 
                 // Calculate quarter grades
@@ -1104,6 +1236,7 @@
         }
 
         function renderCollegeDashboard() {
+            document.getElementById('div-class-type').classList.remove('hidden');
             let avg = students.reduce((a,b)=>a+b.grandTotal,0) / students.length || 0;
             document.getElementById('stat-avg').innerText = transmute(avg);
             document.getElementById('stat-fail').innerText = students.filter(s=>s.grandTotal<50).length;
@@ -1189,6 +1322,7 @@
         }
 
         function renderSHSDashboard() {
+            document.getElementById('div-class-type').classList.add('hidden');
             let avg = students.reduce((a,b)=>a+b.grandTotal,0) / students.length || 0;
             document.getElementById('stat-avg').innerText = avg.toFixed(2);
             document.getElementById('stat-fail').innerText = students.filter(s=>s.grandTotal<75).length;
@@ -1606,7 +1740,13 @@
                     let lecG = (calc(t.f2f.lec.quiz) * COLLEGE_WEIGHTS.lec.quiz) + (calc(t.f2f.lec.exam) * COLLEGE_WEIGHTS.lec.exam) + (calc(t.f2f.lec.bonus) * COLLEGE_WEIGHTS.lec.bonus);
                     let labG = (calc(t.f2f.lab.quiz) * COLLEGE_WEIGHTS.lab.quiz) + (calc(t.f2f.lab.exam) * COLLEGE_WEIGHTS.lab.exam) + (calc(t.f2f.lab.bonus) * COLLEGE_WEIGHTS.lab.bonus);
                     
-                    let f2fG = (lecG * COLLEGE_WEIGHTS.f2f.lec) + (labG * COLLEGE_WEIGHTS.f2f.lab);
+                    let f2fG = 0;
+                    if(courseInfo.classType === 'lec_only') {
+                        f2fG = lecG;
+                    } else {
+                        f2fG = (lecG * COLLEGE_WEIGHTS.f2f.lec) + (labG * COLLEGE_WEIGHTS.f2f.lab);
+                    }
+
                     t.f2fFinal = f2fG;
                     t.lecFinal = lecG;
                     t.labFinal = labG;
@@ -1658,6 +1798,13 @@
                 s.grandTotal = s.calculatedGrandTotal + (s.bonusPoints || 0);
                 s.transmuted = s.grandTotal.toFixed(2);
             }
+        }
+
+        function updateClassType(val) {
+            courseInfo.classType = val;
+            // Recalculate all students
+            students.forEach(s => recalculateStudentGrades(s));
+            renderDashboard();
         }
 
         function updateActivityBonus(studentIdx, historyIdx, bonusValue) {
@@ -3230,6 +3377,7 @@ lines.push("For questions regarding grading, please contact your instructor.");
                     document.getElementById('inp-subject').value = courseInfo.subject || '';
                     document.getElementById('inp-section').value = courseInfo.section || '';
                     document.getElementById('inp-schoolyear').value = courseInfo.schoolYear || '';
+                    document.getElementById('sel-class-type').value = courseInfo.classType || 'lec_lab';
 
                     // Rebuild mapping table in background (so "Edit Mapping" works)
                     buildMappingTable();
